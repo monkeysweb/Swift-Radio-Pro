@@ -149,7 +149,7 @@
 		53113F38230C720900462C0E /* ShareActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareActivity.swift; sourceTree = "<group>"; };
 		6258DCD722D93A3500166C65 /* LogoShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoShareView.swift; sourceTree = "<group>"; };
 		6258DCD922D93A5400166C65 /* LogoShareView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LogoShareView.xib; sourceTree = "<group>"; };
-		9409E1161ABF6FEA00312E2B /* SwiftRadio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftRadio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9409E1161ABF6FEA00312E2B /* KPCRRadio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KPCRRadio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9409E11A1ABF6FEA00312E2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9409E11B1ABF6FEA00312E2B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9409E1251ABF6FEA00312E2B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -253,7 +253,7 @@
 		9409E1171ABF6FEA00312E2B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9409E1161ABF6FEA00312E2B /* SwiftRadio.app */,
+				9409E1161ABF6FEA00312E2B /* KPCRRadio.app */,
 				2C5545BA1C1124DE00728469 /* SwiftRadioUITests.xctest */,
 				CE6A3E4F291F376D0058C82A /* SwiftRadio-CarPlay.app */,
 			);
@@ -459,7 +459,7 @@
 				CA900002200000000000000A /* MarqueeLabel */,
 			);
 			productName = RadioPro;
-			productReference = 9409E1161ABF6FEA00312E2B /* SwiftRadio.app */;
+			productReference = 9409E1161ABF6FEA00312E2B /* KPCRRadio.app */;
 			productType = "com.apple.product-type.application";
 		};
 		CE6A3E2B291F376D0058C82A /* SwiftRadio-CarPlay */ = {
@@ -842,21 +842,22 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 6G96AERJ7Q;
+				DEVELOPMENT_TEAM = 94Y2HN9L8P;
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/SwiftRadio",
 				);
 				INFOPLIST_FILE = SwiftRadio/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Pirate Cat Radio KPCR";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.0;
+				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
 				PRODUCT_BUNDLE_IDENTIFIER = com.matthewfecher.SwiftRadio;
 				PRODUCT_NAME = SwiftRadio;
@@ -874,21 +875,22 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 6G96AERJ7Q;
+				DEVELOPMENT_TEAM = 94Y2HN9L8P;
 				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/SwiftRadio",
 				);
 				INFOPLIST_FILE = SwiftRadio/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Pirate Cat Radio KPCR";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.0;
+				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
 				PRODUCT_BUNDLE_IDENTIFIER = com.matthewfecher.SwiftRadio;
 				PRODUCT_NAME = SwiftRadio;
