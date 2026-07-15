@@ -727,6 +727,12 @@ private class KPCRBaseViewController: UIViewController {
     func presentProfile() {
         let profile = KPCRProfileViewController()
         profile.modalPresentationStyle = .pageSheet
+        if let sheet = profile.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.selectedDetentIdentifier = .large
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 24
+        }
         present(profile, animated: true)
     }
 }
@@ -1210,7 +1216,9 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         contentStack.addArrangedSubview(sectionTitle("My KPCR"))
-        contentStack.addArrangedSubview(KPCRLoginCardView())
+        contentStack.addArrangedSubview(KPCRLoginCardView { [weak self] in
+            self?.presentProfile()
+        })
         contentStack.addArrangedSubview(KPCREmptyCardView(message: "Liked shows, liked songs, and Signal Society member options will appear here after account setup."))
         contentStack.addArrangedSubview(KPCRMenuCardView(title: "Signal Society", rows: ["Membership status", "Double giveaway entries", "Member perks", "Content coming soon"]))
     }
@@ -1618,8 +1626,11 @@ private final class KPCRGiveawayCardView: KPCRShadowCard {
 }
 
 private final class KPCRLoginCardView: KPCRShadowCard {
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private let onSignIn: (() -> Void)?
+
+    init(onSignIn: (() -> Void)? = nil) {
+        self.onSignIn = onSignIn
+        super.init(frame: .zero)
         backgroundColor = KPCRStyle.ice
         let image = UIImageView(image: UIImage(named: "stationImage"))
         image.contentMode = .scaleAspectFit
@@ -1631,6 +1642,7 @@ private final class KPCRLoginCardView: KPCRShadowCard {
         signIn.layer.cornerRadius = 10
         signIn.layer.borderWidth = 2
         signIn.layer.borderColor = KPCRStyle.ink.cgColor
+        signIn.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
         let signUp = label("Don't have an account? Sign up", 19, .medium)
         signUp.textAlignment = .center
         let stack = UIStackView(arrangedSubviews: [image, signIn, signUp])
@@ -1642,6 +1654,10 @@ private final class KPCRLoginCardView: KPCRShadowCard {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    @objc private func signInTapped() {
+        onSignIn?()
+    }
 }
 
 private final class KPCRMenuCardView: KPCRShadowCard {
@@ -1785,48 +1801,230 @@ private final class KPCRDrawerViewController: UIViewController {
 }
 
 private final class KPCRProfileViewController: UIViewController {
+    private let modeControl = UISegmentedControl(items: ["Sign In", "Create"])
+    private let contentStack = UIStackView()
+    private let status = UILabel()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = KPCRStyle.cream
+        build()
+        render()
+    }
+
+    private func build() {
         let close = UIButton(type: .system)
         close.setImage(UIImage(systemName: "xmark.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 32, weight: .bold)), for: .normal)
         close.tintColor = KPCRStyle.ink
+        close.contentHorizontalAlignment = .trailing
         close.addTarget(self, action: #selector(done), for: .touchUpInside)
 
-        let avatar = UIImageView(image: UIImage(named: "stationImage"))
-        avatar.contentMode = .scaleAspectFit
-        avatar.layer.cornerRadius = 45
-        avatar.clipsToBounds = true
+        modeControl.selectedSegmentIndex = KPCRSession.isLoggedIn ? UISegmentedControl.noSegment : 0
+        modeControl.addTarget(self, action: #selector(modeChanged), for: .valueChanged)
+        modeControl.selectedSegmentTintColor = KPCRStyle.cyan
+        modeControl.setTitleTextAttributes([.font: KPCRStyle.rounded(14, weight: .black)], for: .normal)
 
-        let name = label("Pirate Cat Listener", 24, .black)
-        name.textAlignment = .center
-        let card = KPCRMenuCardView(title: "Account", rows: ["Username  PirateCat", "Email  listener@kpcr.org", "Change password", "Delete account"])
-        let signOut = UIButton(type: .system)
-        signOut.setTitle("Sign out", for: .normal)
-        signOut.titleLabel?.font = KPCRStyle.rounded(18, weight: .black)
-        signOut.tintColor = .white
-        signOut.backgroundColor = KPCRStyle.ink
-        signOut.layer.cornerRadius = 10
-        signOut.layer.borderWidth = 2
-        signOut.layer.borderColor = KPCRStyle.ink.cgColor
+        contentStack.axis = .vertical
+        contentStack.spacing = 14
+        contentStack.alignment = .fill
 
-        let stack = UIStackView(arrangedSubviews: [close, avatar, name, card, signOut])
+        status.font = KPCRStyle.rounded(14, weight: .bold)
+        status.textColor = KPCRStyle.red
+        status.textAlignment = .center
+        status.numberOfLines = 0
+        status.isHidden = true
+
+        let scroll = UIScrollView()
+        scroll.keyboardDismissMode = .interactive
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        let stack = UIStackView(arrangedSubviews: [close, modeControl, contentStack, status])
         stack.axis = .vertical
-        stack.spacing = 18
+        stack.spacing = 16
         stack.alignment = .fill
         stack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stack)
+        view.addSubview(scroll)
+        scroll.addSubview(stack)
         NSLayoutConstraint.activate([
             close.heightAnchor.constraint(equalToConstant: 44),
-            avatar.heightAnchor.constraint(equalToConstant: 100),
-            signOut.heightAnchor.constraint(equalToConstant: 56),
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 22),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 26),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -26),
+            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scroll.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+            stack.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 8),
+            stack.leadingAnchor.constraint(equalTo: scroll.frameLayoutGuide.leadingAnchor, constant: 22),
+            stack.trailingAnchor.constraint(equalTo: scroll.frameLayoutGuide.trailingAnchor, constant: -22),
+            stack.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor, constant: -18),
         ])
     }
 
+    private func render() {
+        contentStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        status.isHidden = true
+        if KPCRSession.isLoggedIn {
+            modeControl.isHidden = true
+            renderAccount()
+        } else {
+            modeControl.isHidden = false
+            renderAuthForm(isCreatingAccount: modeControl.selectedSegmentIndex == 1)
+        }
+    }
+
+    private func renderAuthForm(isCreatingAccount: Bool) {
+        let card = KPCRShadowCard()
+        card.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        let avatar = UIImageView(image: UIImage(named: "stationImage"))
+        avatar.contentMode = .scaleAspectFit
+        avatar.layer.cornerRadius = 50
+        avatar.clipsToBounds = true
+        avatar.backgroundColor = KPCRStyle.cyan
+
+        let title = label(isCreatingAccount ? "Create your KPCR account" : "Sign in to KPCR", 24, .black)
+        title.textAlignment = .center
+        title.numberOfLines = 0
+        let email = fieldGroup("Email", keyboard: .emailAddress)
+        let username = fieldGroup("Username")
+        username.isHidden = !isCreatingAccount
+        let password = fieldGroup("Password", isSecure: true)
+        let primary = authButton(isCreatingAccount ? "Create account" : "Sign In", fill: KPCRStyle.coral)
+        primary.addTarget(self, action: #selector(authUnavailable), for: .touchUpInside)
+        let apple = authButton("Sign in with Apple", fill: KPCRStyle.ink)
+        apple.addTarget(self, action: #selector(authUnavailable), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [avatar, title, email, username, password, primary, apple])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.alignment = .fill
+        card.addContent(stack, insets: UIEdgeInsets(top: 18, left: 18, bottom: 18, right: 18))
+        contentStack.addArrangedSubview(card)
+        NSLayoutConstraint.activate([
+            avatar.heightAnchor.constraint(equalToConstant: 100),
+            card.heightAnchor.constraint(greaterThanOrEqualToConstant: isCreatingAccount ? 520 : 440),
+            primary.heightAnchor.constraint(equalToConstant: 50),
+            apple.heightAnchor.constraint(equalToConstant: 50),
+        ])
+    }
+
+    private func renderAccount() {
+        let avatar = UIImageView(image: UIImage(named: KPCRSession.hasUploadedAvatar ? "userAvatar" : "stationImage"))
+        avatar.contentMode = .scaleAspectFit
+        avatar.layer.cornerRadius = 50
+        avatar.clipsToBounds = true
+        avatar.backgroundColor = KPCRStyle.cyan
+
+        let name = label("Pirate Cat Listener", 24, .black)
+        name.textAlignment = .center
+        let card = KPCRShadowCard()
+        let rows = UIStackView()
+        rows.axis = .vertical
+        rows.spacing = 0
+        rows.addArrangedSubview(KPCRAccountRowView(icon: "person.fill", label: "username", value: "PirateCat"))
+        rows.addArrangedSubview(KPCRAccountRowView(icon: "envelope.fill", label: "email", value: "listener@kpcr.org"))
+        rows.addArrangedSubview(KPCRAccountRowView(icon: "lock.fill", label: "password", value: "Change password"))
+        rows.addArrangedSubview(KPCRAccountRowView(icon: "bell.slash.fill", label: "reset", value: "Reset notification count"))
+        rows.addArrangedSubview(KPCRAccountRowView(icon: "trash.fill", label: "Delete account", value: "", destructive: true))
+        card.addContent(rows, insets: UIEdgeInsets(top: 6, left: 0, bottom: 6, right: 0))
+        let signOut = authButton("Sign out", fill: KPCRStyle.blue)
+        signOut.addTarget(self, action: #selector(authUnavailable), for: .touchUpInside)
+        contentStack.addArrangedSubview(avatar)
+        contentStack.addArrangedSubview(name)
+        contentStack.addArrangedSubview(card)
+        contentStack.addArrangedSubview(signOut)
+        NSLayoutConstraint.activate([
+            avatar.heightAnchor.constraint(equalToConstant: 100),
+            signOut.heightAnchor.constraint(equalToConstant: 54),
+        ])
+    }
+
+    private func fieldGroup(_ title: String, keyboard: UIKeyboardType = .default, isSecure: Bool = false) -> UIStackView {
+        let titleLabel = label(title.uppercased(), 13, .black)
+        titleLabel.textColor = KPCRStyle.ink
+        let input = field(title, keyboard: keyboard, isSecure: isSecure)
+        let stack = UIStackView(arrangedSubviews: [titleLabel, input])
+        stack.axis = .vertical
+        stack.spacing = 6
+        input.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        return stack
+    }
+
+    private func field(_ placeholder: String, keyboard: UIKeyboardType = .default, isSecure: Bool = false) -> UITextField {
+        let field = UITextField()
+        field.placeholder = placeholder
+        field.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [.foregroundColor: UIColor.black.withAlphaComponent(0.45)]
+        )
+        field.keyboardType = keyboard
+        field.isSecureTextEntry = isSecure
+        field.autocapitalizationType = .none
+        field.autocorrectionType = .no
+        field.font = KPCRStyle.rounded(17, weight: .medium)
+        field.textColor = KPCRStyle.ink
+        field.backgroundColor = KPCRStyle.paper
+        field.layer.borderWidth = 2
+        field.layer.borderColor = KPCRStyle.ink.cgColor
+        field.layer.cornerRadius = 10
+        field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 14, height: 1))
+        field.leftViewMode = .always
+        return field
+    }
+
+    private func authButton(_ title: String, fill: UIColor) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = KPCRStyle.rounded(18, weight: .black)
+        button.tintColor = .white
+        button.backgroundColor = fill
+        button.layer.cornerRadius = 10
+        button.layer.borderWidth = 2
+        button.layer.borderColor = KPCRStyle.ink.cgColor
+        return button
+    }
+
+    @objc private func modeChanged() { render() }
+    @objc private func authUnavailable() {
+        status.text = "Account backend is not connected yet."
+        status.isHidden = false
+    }
     @objc private func done() { dismiss(animated: true) }
+}
+
+private final class KPCRAccountRowView: UIView {
+    init(icon: String, label: String, value: String, destructive: Bool = false) {
+        super.init(frame: .zero)
+        let symbol = UIImageView(image: UIImage(systemName: icon))
+        symbol.tintColor = destructive ? KPCRStyle.red : KPCRStyle.blue
+        symbol.contentMode = .scaleAspectFit
+        let title = UILabel()
+        title.text = label
+        title.font = KPCRStyle.rounded(18, weight: destructive ? .medium : .regular)
+        title.textColor = destructive ? KPCRStyle.red : UIColor.black.withAlphaComponent(0.72)
+        let detail = UILabel()
+        detail.text = value
+        detail.font = KPCRStyle.rounded(18, weight: .black)
+        detail.textColor = KPCRStyle.ink
+        detail.textAlignment = .right
+        let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
+        chevron.tintColor = UIColor.black.withAlphaComponent(0.45)
+        let row = UIStackView(arrangedSubviews: [symbol, title, detail, chevron])
+        row.axis = .horizontal
+        row.alignment = .center
+        row.spacing = 12
+        row.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(row)
+        NSLayoutConstraint.activate([
+            symbol.widthAnchor.constraint(equalToConstant: 24),
+            symbol.heightAnchor.constraint(equalToConstant: 24),
+            chevron.widthAnchor.constraint(equalToConstant: 16),
+            row.topAnchor.constraint(equalTo: topAnchor, constant: 14),
+            row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 18),
+            row.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18),
+            row.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -14),
+        ])
+        detail.setContentCompressionResistancePriority(.required, for: .horizontal)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
 private func label(_ text: String, _ size: CGFloat, _ weight: UIFont.Weight, _ color: UIColor = KPCRStyle.ink) -> UILabel {
