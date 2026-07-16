@@ -2462,20 +2462,20 @@ private final class KPCRDigitalMemberCardView: UIView {
 
         let statusKicker = label("STATUS", 12, .black, .white)
         statusKicker.textAlignment = .right
-        let status = label(membership.statusLabel, 21, .black, KPCRStyle.yellow)
+        let status = label(membership.statusLabel, 21, .regular, KPCRStyle.yellow)
         status.textAlignment = .right
         status.numberOfLines = 1
         status.adjustsFontSizeToFitWidth = true
         status.minimumScaleFactor = 0.74
 
         let nameKicker = label("MEMBER'S NAME", 12, .black, .white)
-        let name = label(memberName(), 31, .bold, KPCRStyle.yellow)
+        let name = label(memberName(), 29, .regular, KPCRStyle.yellow)
         name.numberOfLines = 1
         name.adjustsFontSizeToFitWidth = true
         name.minimumScaleFactor = 0.54
 
         let typeKicker = label("MEMBERSHIP TYPE", 12, .black, .white)
-        let type = label((membership.membershipTypeName ?? "Signal Society").uppercased(), 18, .regular, KPCRStyle.yellow)
+        let type = label((membership.membershipTypeName ?? "Signal Society").uppercased(), 17, .regular, KPCRStyle.yellow)
         type.numberOfLines = 2
         type.adjustsFontSizeToFitWidth = true
         type.minimumScaleFactor = 0.56
@@ -2487,7 +2487,7 @@ private final class KPCRDigitalMemberCardView: UIView {
         expiration.minimumScaleFactor = 0.7
 
         let memberIdKicker = label("MEMBERSHIP ID", 12, .black, .white)
-        let memberId = label(shortMembershipId(), 18, .regular, KPCRStyle.yellow)
+        let memberId = label(shortMembershipId(), 17, .regular, KPCRStyle.yellow)
         memberId.numberOfLines = 1
         memberId.adjustsFontSizeToFitWidth = true
         memberId.minimumScaleFactor = 0.62
@@ -2584,7 +2584,7 @@ private final class KPCRDigitalMemberCardView: UIView {
     }
 
     private func shortMembershipId() -> String {
-        let raw = (membership.cardNumber ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let raw = (membership.cardNumber ?? membership.joinitMembershipId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !raw.isEmpty else { return "Not available" }
         return raw.uppercased()
     }
