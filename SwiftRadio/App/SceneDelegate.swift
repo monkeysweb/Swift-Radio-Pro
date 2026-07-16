@@ -172,9 +172,11 @@ private struct KPCRMembershipPayload: Codable {
 private struct KPCRMembership: Codable {
     let joinitMembershipId: String?
     let cardNumber: String?
+    let memberNumber: String?
     let qrCodeUrl: String?
     let memberName: String?
     let profileImageUrl: String?
+    let profileImageURL: String?
     let email: String?
     let membershipTypeName: String?
     let membershipTypeId: String?
@@ -1574,6 +1576,7 @@ private enum KPCRMyKPCRSection {
 private final class KPCRMyPCRViewController: KPCRBaseViewController {
     private var favoritesToken: NSObjectProtocol?
     private var membershipPayload: KPCRMembershipPayload?
+    private var membershipError: String?
     private var isLoadingMembership = false
     private var selectedSection: KPCRMyKPCRSection = .shows
 
@@ -1638,6 +1641,7 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
                 contentStack.addArrangedSubview(KPCRSignalSocietyCard(
                     payload: membershipPayload,
                     isLoading: isLoadingMembership,
+                    errorMessage: membershipError,
                     onOpen: { [weak self] url in self?.open(url) }
                 ))
             }
@@ -1650,6 +1654,7 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
             contentStack.addArrangedSubview(KPCRSignalSocietyCard(
                 payload: membershipPayload,
                 isLoading: isLoadingMembership,
+                errorMessage: nil,
                 onOpen: { [weak self] url in self?.open(url) }
             ))
         }
@@ -1665,6 +1670,7 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
                 let payload = try await KPCRAPI.fetchMembership()
                 await MainActor.run {
                     self?.membershipPayload = payload
+                    self?.membershipError = nil
                     self?.isLoadingMembership = false
                     self?.render()
                 }
@@ -1672,12 +1678,21 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
                 await MainActor.run {
                     KPCRSession.signOut()
                     self?.membershipPayload = nil
+                    self?.membershipError = "Please sign in again."
+                    self?.isLoadingMembership = false
+                    self?.render()
+                }
+            } catch KPCRAPIError.server(let message) {
+                await MainActor.run {
+                    self?.membershipPayload = nil
+                    self?.membershipError = message
                     self?.isLoadingMembership = false
                     self?.render()
                 }
             } catch {
                 await MainActor.run {
                     self?.membershipPayload = nil
+                    self?.membershipError = "The KPCR backend could not check your membership right now."
                     self?.isLoadingMembership = false
                     self?.render()
                 }
@@ -2595,13 +2610,13 @@ private final class KPCRDigitalMemberCardView: UIView {
     }
 
     private func shortMembershipId() -> String {
-        let raw = (membership.cardNumber ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let raw = (membership.memberNumber ?? membership.cardNumber ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !raw.isEmpty else { return "Not available" }
         return raw.uppercased()
     }
 
     private func loadPortrait() {
-        guard let urlString = membership.profileImageUrl, let url = URL(string: urlString) else { return }
+        guard let urlString = membership.profileImageURL ?? membership.profileImageUrl, let url = URL(string: urlString) else { return }
         Task {
             let fetched = await NetworkService.fetchImage(from: url)
             await MainActor.run {
@@ -2612,6 +2627,7 @@ private final class KPCRDigitalMemberCardView: UIView {
 
     private func makeQRCode() -> UIImage? {
         let value = membership.qrCodeUrl
+            ?? membership.memberNumber
             ?? membership.cardNumber
             ?? "KPCR Signal Society"
         guard let data = value.data(using: .utf8),
@@ -2642,7 +2658,7 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
     private let walletUrl: String?
     private let onOpen: ((String) -> Void)?
 
-    init(payload: KPCRMembershipPayload?, isLoading: Bool, onOpen: ((String) -> Void)? = nil) {
+    init(payload: KPCRMembershipPayload?, isLoading: Bool, errorMessage: String? = nil, onOpen: ((String) -> Void)? = nil) {
         self.checkoutUrl = payload?.checkoutUrl
         self.cardUrl = payload?.membership.cardUrl
         self.walletUrl = payload?.membership.walletUrl
@@ -2666,7 +2682,9 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
         } else if let membership = payload?.membership {
             if membership.status == 100 {
                 stack.addArrangedSubview(memberCardBlock(membership: membership))
-                stack.addArrangedSubview(actionRow(primaryTitle: "Upgrade membership", secondaryTitle: nil))
+                if checkoutUrl != nil {
+                    stack.addArrangedSubview(actionRow(primaryTitle: "Upgrade membership", secondaryTitle: nil))
+                }
             } else {
                 stack.addArrangedSubview(header(
                     title: "Signal Society",
@@ -2675,14 +2693,14 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
                 ))
                 stack.addArrangedSubview(statusBlock(membership))
                 stack.addArrangedSubview(body("Join or renew to unlock member perks, double giveaway entries, and your digital card."))
-                stack.addArrangedSubview(memberCardBlock(membership: membership))
-                stack.addArrangedSubview(actionRow(primaryTitle: "Sign up or renew", secondaryTitle: nil))
+                if checkoutUrl != nil {
+                    stack.addArrangedSubview(actionRow(primaryTitle: "Sign up or renew", secondaryTitle: nil))
+                }
             }
         } else if KPCRSession.isLoggedIn {
-            stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Membership unavailable", isActive: false))
-            stack.addArrangedSubview(statusBlock(nil))
-            stack.addArrangedSubview(body("We couldn't confirm your membership yet. You can still sign up, renew, or upgrade."))
-            stack.addArrangedSubview(actionRow(primaryTitle: "Sign up or renew", secondaryTitle: nil))
+            stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Account not matched", isActive: false))
+            let email = KPCRSession.currentUser?.email ?? "this account"
+            stack.addArrangedSubview(body(errorMessage ?? "No Signal Society membership was found for \(email). Sign in with the email on your Join It membership."))
         } else {
             stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Sign in required", isActive: false))
             stack.addArrangedSubview(body("Sign in to check your Signal Society membership, view your member card, and unlock member perks."))
