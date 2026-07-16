@@ -196,6 +196,7 @@ private struct KPCRAPIErrorResponse: Codable {
 private enum KPCRAPIError: LocalizedError {
     case invalidURL
     case invalidResponse
+    case authRequired
     case server(String)
 
     var errorDescription: String? {
@@ -204,6 +205,8 @@ private enum KPCRAPIError: LocalizedError {
             return "The KPCR backend URL is invalid."
         case .invalidResponse:
             return "The KPCR backend did not respond correctly."
+        case .authRequired:
+            return "Please sign in again."
         case .server(let message):
             return message
         }
@@ -874,6 +877,9 @@ private enum KPCRAPI {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw KPCRAPIError.invalidResponse }
+        if http.statusCode == 401 || http.statusCode == 403 {
+            throw KPCRAPIError.authRequired
+        }
         guard 200...299 ~= http.statusCode else {
             let message = (try? JSONDecoder().decode(KPCRAPIErrorResponse.self, from: data).error) ?? "The KPCR backend did not respond correctly."
             throw KPCRAPIError.server(message)
@@ -1659,6 +1665,13 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
                 let payload = try await KPCRAPI.fetchMembership()
                 await MainActor.run {
                     self?.membershipPayload = payload
+                    self?.isLoadingMembership = false
+                    self?.render()
+                }
+            } catch KPCRAPIError.authRequired {
+                await MainActor.run {
+                    KPCRSession.signOut()
+                    self?.membershipPayload = nil
                     self?.isLoadingMembership = false
                     self?.render()
                 }
