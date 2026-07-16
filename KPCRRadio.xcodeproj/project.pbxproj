@@ -113,7 +113,7 @@
 			containerPortal = 9409E10E1ABF6FE900312E2B /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 9409E1151ABF6FEA00312E2B;
-			remoteInfo = SwiftRadio;
+			remoteInfo = KPCRRadio;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -437,9 +437,9 @@
 			productReference = 2C5545BA1C1124DE00728469 /* SwiftRadioUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		9409E1151ABF6FEA00312E2B /* SwiftRadio */ = {
+		9409E1151ABF6FEA00312E2B /* KPCRRadio */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9409E1381ABF6FEA00312E2B /* Build configuration list for PBXNativeTarget "SwiftRadio" */;
+			buildConfigurationList = 9409E1381ABF6FEA00312E2B /* Build configuration list for PBXNativeTarget "KPCRRadio" */;
 			buildPhases = (
 				9409E1121ABF6FEA00312E2B /* Sources */,
 				9409E1131ABF6FEA00312E2B /* Frameworks */,
@@ -450,7 +450,7 @@
 			);
 			dependencies = (
 			);
-			name = SwiftRadio;
+			name = KPCRRadio;
 			packageProductDependencies = (
 				CE37D7B6290F4A9700B0933B /* FRadioPlayer */,
 				CE6036202A48C51A00E15E15 /* NVActivityIndicatorView */,
@@ -534,7 +534,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9409E1151ABF6FEA00312E2B /* SwiftRadio */,
+				9409E1151ABF6FEA00312E2B /* KPCRRadio */,
 				CE6A3E2B291F376D0058C82A /* SwiftRadio-CarPlay */,
 				2C5545B91C1124DE00728469 /* SwiftRadioUITests */,
 			);
@@ -678,7 +678,7 @@
 /* Begin PBXTargetDependency section */
 		2C5545C01C1124DE00728469 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 9409E1151ABF6FEA00312E2B /* SwiftRadio */;
+			target = 9409E1151ABF6FEA00312E2B /* KPCRRadio */;
 			targetProxy = 2C5545BF1C1124DE00728469 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -699,7 +699,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jonah.SwiftRadioUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = SwiftRadio;
+				TEST_TARGET_NAME = KPCRRadio;
 				USES_XCTRUNNER = YES;
 			};
 			name = Debug;
@@ -719,7 +719,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jonah.SwiftRadioUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = SwiftRadio;
+				TEST_TARGET_NAME = KPCRRadio;
 				USES_XCTRUNNER = YES;
 			};
 			name = Release;
@@ -852,6 +852,7 @@
 				);
 				INFOPLIST_FILE = SwiftRadio/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Pirate Cat Radio KPCR";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -859,8 +860,8 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.matthewfecher.SwiftRadio;
-				PRODUCT_NAME = SwiftRadio;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio;
+				PRODUCT_NAME = KPCRRadio;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -885,6 +886,7 @@
 				);
 				INFOPLIST_FILE = SwiftRadio/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Pirate Cat Radio KPCR";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -892,8 +894,8 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.matthewfecher.SwiftRadio;
-				PRODUCT_NAME = SwiftRadio;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio;
+				PRODUCT_NAME = KPCRRadio;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -997,7 +999,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9409E1381ABF6FEA00312E2B /* Build configuration list for PBXNativeTarget "SwiftRadio" */ = {
+		9409E1381ABF6FEA00312E2B /* Build configuration list for PBXNativeTarget "KPCRRadio" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9409E1391ABF6FEA00312E2B /* Debug */,

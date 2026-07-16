@@ -1,10 +1,4 @@
-//
-//  SceneDelegate.swift
-//  Swift Radio
-//
-//  Created by Fethi El Hassasna on 1/25/25.
-//  Copyright (c) 2015 MatthewFecher.com. All rights reserved.
-//
+
 
 import UIKit
 import SafariServices
@@ -35,13 +29,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func setupCoordinator(windowScene: UIWindowScene) {
-        coordinator = MainCoordinator(navigationController: UINavigationController())
-        
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = coordinator?.navigationController
+        window?.rootViewController = KPCRTabBarController()
         window?.makeKeyAndVisible()
-        
-        coordinator?.start()
     }
     
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -181,10 +171,14 @@ private struct KPCRMembershipPayload: Codable {
 
 private struct KPCRMembership: Codable {
     let joinitMembershipId: String?
+    let cardNumber: String?
+    let qrCodeUrl: String?
     let memberName: String?
     let profileImageUrl: String?
     let email: String?
     let membershipTypeName: String?
+    let membershipTypeId: String?
+    let isSignalSociety: Bool?
     let status: Int?
     let statusLabel: String
     let expirationDate: String?
@@ -1342,11 +1336,6 @@ private final class KPCRHomeViewController: KPCRBaseViewController {
 
     private func renderRecent() {
         recentHost.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        if let liveShow = KPCRNowPlayingCenter.shared.liveShowForDisplay {
-            recentHost.addArrangedSubview(KPCRShowCardView(show: liveShow) { [weak self] in
-                self?.showDetail(liveShow)
-            })
-        }
         let liveTracks = KPCRNowPlayingCenter.shared.recentTracks
         recentHost.addArrangedSubview(KPCRTrackCarouselView(tracks: liveTracks.isEmpty ? fallbackRecentTracks : liveTracks))
     }
@@ -1360,6 +1349,8 @@ private final class KPCRScheduleViewController: KPCRBaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = KPCRStyle.ice
+        scrollView.backgroundColor = KPCRStyle.ice
         setup()
         Task { @MainActor in
             schedule = await KPCRAPI.fetchSchedule()
@@ -1372,9 +1363,9 @@ private final class KPCRScheduleViewController: KPCRBaseViewController {
     private func setup() {
         daysStack.axis = .horizontal
         daysStack.distribution = .fillEqually
-        daysStack.spacing = 6
+        daysStack.spacing = 4
         listStack.axis = .vertical
-        listStack.spacing = 14
+        listStack.spacing = 18
         contentStack.addArrangedSubview(daysStack)
         contentStack.addArrangedSubview(listStack)
         renderDays()
@@ -1386,7 +1377,10 @@ private final class KPCRScheduleViewController: KPCRBaseViewController {
         for day in schedule.days.map(\.day) {
             let button = UIButton(type: .system)
             button.setTitle(String(day.prefix(3)).uppercased(), for: .normal)
-            button.titleLabel?.font = KPCRStyle.rounded(18, weight: .black)
+            button.titleLabel?.font = KPCRStyle.rounded(16, weight: .black)
+            button.titleLabel?.adjustsFontSizeToFitWidth = true
+            button.titleLabel?.minimumScaleFactor = 0.72
+            button.titleLabel?.lineBreakMode = .byClipping
             button.tintColor = day == selectedDay ? .white : KPCRStyle.ink
             button.backgroundColor = day == selectedDay ? KPCRStyle.coral : .clear
             button.layer.cornerRadius = 5
@@ -1898,49 +1892,95 @@ private final class KPCRShowCardView: KPCRShadowCard {
     init(show: KPCRShow, onTap: (() -> Void)? = nil) {
         self.onTap = onTap
         super.init(frame: .zero)
+        backgroundColor = UIColor(red: 1.0, green: 0.976, blue: 0.929, alpha: 1)
+        layer.cornerRadius = 19
+        layer.borderWidth = 2.8
+        layer.shadowColor = UIColor(red: 0.95, green: 0.75, blue: 0.24, alpha: 1).cgColor
+        layer.shadowOffset = CGSize(width: 6, height: 7)
         isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
         let image = KPCRSquareImageView(urlString: show.imageUrl)
-        let title = label(show.title, 21, .black)
-        let host = label(show.host, 17, .regular)
-        let dayPrefix = show.day.map { String($0.prefix(3)) + " " } ?? ""
-        let time = label((dayPrefix + show.time).replacingOccurrences(of: ":00", with: ""), 16, .bold, KPCRStyle.red)
-        let text = UIStackView(arrangedSubviews: [title, host, time])
-        text.axis = .vertical
-        text.spacing = 7
+        let title = label(show.title, 18, .black)
+        let host = label(show.host, 16, .regular)
+        let time = label(Self.formattedTime(show.time), 16, .bold, UIColor(red: 0.78, green: 0.29, blue: 0.18, alpha: 1))
         title.numberOfLines = 1
         title.lineBreakMode = .byTruncatingTail
+        title.minimumScaleFactor = 0.88
+        title.adjustsFontSizeToFitWidth = true
         host.numberOfLines = 1
         host.lineBreakMode = .byTruncatingTail
+        host.minimumScaleFactor = 0.9
+        host.adjustsFontSizeToFitWidth = true
         time.numberOfLines = 1
         time.lineBreakMode = .byTruncatingTail
-        let share = icon("square.and.arrow.up")
-        let heart = icon(KPCRFavoritesStore.shared.isFavorite(show: show) ? "heart.fill" : "heart")
+        let share = showCardIcon("square.and.arrow.up")
+        let heart = showCardIcon(KPCRFavoritesStore.shared.isFavorite(show: show) ? "heart.fill" : "heart")
+        let count = label("\(Self.favoriteCount(for: show))", 13, .medium, UIColor.black.withAlphaComponent(0.7))
         heart.addAction(UIAction { _ in
             Task { @MainActor in
                 await KPCRFavoritesStore.shared.toggle(show: show)
-                heart.setImage(UIImage(systemName: KPCRFavoritesStore.shared.isFavorite(show: show) ? "heart.fill" : "heart", withConfiguration: UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)), for: .normal)
+                heart.setImage(UIImage(systemName: KPCRFavoritesStore.shared.isFavorite(show: show) ? "heart.fill" : "heart", withConfiguration: UIImage.SymbolConfiguration(pointSize: 29, weight: .medium)), for: .normal)
             }
         }, for: .touchUpInside)
-        let actions = UIStackView(arrangedSubviews: [share, heart])
+        let actions = UIStackView(arrangedSubviews: [share, heart, count])
         actions.axis = .horizontal
-        actions.spacing = 14
         actions.alignment = .center
-        let row = UIStackView(arrangedSubviews: [image, text, actions])
-        row.axis = .horizontal
-        row.alignment = .center
-        row.spacing = 14
-        addContent(row, insets: UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12))
-        image.widthAnchor.constraint(equalToConstant: 86).isActive = true
-        image.heightAnchor.constraint(equalToConstant: 86).isActive = true
-        text.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        actions.spacing = 9
+        [image, title, host, time, actions].forEach { $0.translatesAutoresizingMaskIntoConstraints = false; addSubview($0) }
+        NSLayoutConstraint.activate([
+            heightAnchor.constraint(equalToConstant: 138),
+            image.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            image.centerYAnchor.constraint(equalTo: centerYAnchor),
+            image.widthAnchor.constraint(equalToConstant: 96),
+            image.heightAnchor.constraint(equalToConstant: 96),
+
+            title.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 14),
+            title.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18),
+            title.topAnchor.constraint(equalTo: image.topAnchor, constant: 8),
+
+            host.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            host.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18),
+            host.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 8),
+
+            time.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            time.trailingAnchor.constraint(lessThanOrEqualTo: actions.leadingAnchor, constant: -12),
+            time.topAnchor.constraint(equalTo: host.bottomAnchor, constant: 8),
+
+            actions.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18),
+            actions.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -28),
+        ])
+        title.setContentCompressionResistancePriority(.required, for: .horizontal)
+        host.setContentCompressionResistancePriority(.required, for: .horizontal)
+        time.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         actions.setContentHuggingPriority(.required, for: .horizontal)
+        actions.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     @objc private func tapped() {
         onTap?()
+    }
+
+    private func showCardIcon(_ name: String) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: name, withConfiguration: UIImage.SymbolConfiguration(pointSize: name == "heart" || name == "heart.fill" ? 25 : 23, weight: .medium)), for: .normal)
+        button.tintColor = KPCRStyle.ink
+        button.imageView?.contentMode = .scaleAspectFit
+        button.contentHorizontalAlignment = .center
+        button.contentVerticalAlignment = .center
+        button.widthAnchor.constraint(equalToConstant: 28).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        return button
+    }
+
+    private static func formattedTime(_ value: String) -> String {
+        value.replacingOccurrences(of: ":00", with: "").replacingOccurrences(of: "  ", with: " ")
+    }
+
+    private static func favoriteCount(for show: KPCRShow) -> Int {
+        let source = show.slug ?? show.title
+        return abs(source.unicodeScalars.reduce(0) { ($0 &* 31) &+ Int($1.value) }) % 84 + 8
     }
 }
 
@@ -2099,20 +2139,27 @@ private final class KPCRGiveawayCardView: KPCRShadowCard {
         backgroundColor = KPCRStyle.green
         isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
-        let title = label(item.title, 20, .black)
-        let venue = label([item.venue, item.city].compactMap { $0 }.joined(separator: " · "), 16, .regular)
-        let enter = label("Enter to win ->", 16, .bold, KPCRStyle.ink)
-        let image = KPCRSquareImageView(urlString: item.imageUrl)
+        let title = label(item.title, 18, .black)
+        let venue = label([item.venue, item.city].compactMap { $0 }.joined(separator: " · "), 15, .regular)
+        let enter = label("Enter to win ->", 15, .bold, KPCRStyle.ink)
+        let image = item.imageUrl == nil ? KPCRTicketFallbackView() : KPCRSquareImageView(urlString: item.imageUrl)
         let stack = UIStackView(arrangedSubviews: [title, venue, enter])
         stack.axis = .vertical
-        stack.spacing = 8
+        stack.spacing = 6
+        title.numberOfLines = 1
+        title.adjustsFontSizeToFitWidth = true
+        title.minimumScaleFactor = 0.82
+        venue.numberOfLines = 1
+        venue.adjustsFontSizeToFitWidth = true
+        venue.minimumScaleFactor = 0.85
         let row = UIStackView(arrangedSubviews: [image, stack])
         row.axis = .horizontal
-        row.spacing = 14
+        row.spacing = 12
         row.alignment = .center
-        addContent(row, insets: UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12))
-        image.widthAnchor.constraint(equalToConstant: 86).isActive = true
-        image.heightAnchor.constraint(equalToConstant: 86).isActive = true
+        addContent(row, insets: UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 14))
+        image.widthAnchor.constraint(equalToConstant: 78).isActive = true
+        image.heightAnchor.constraint(equalToConstant: 78).isActive = true
+        stack.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -2120,6 +2167,29 @@ private final class KPCRGiveawayCardView: KPCRShadowCard {
     @objc private func tapped() {
         onTap?()
     }
+}
+
+private final class KPCRTicketFallbackView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = KPCRStyle.yellow
+        layer.cornerRadius = 8
+        layer.borderWidth = 1.5
+        layer.borderColor = KPCRStyle.ink.cgColor
+        let icon = UIImageView(image: UIImage(systemName: "ticket.fill"))
+        icon.tintColor = KPCRStyle.red
+        icon.contentMode = .scaleAspectFit
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(icon)
+        NSLayoutConstraint.activate([
+            icon.centerXAnchor.constraint(equalTo: centerXAnchor),
+            icon.centerYAnchor.constraint(equalTo: centerYAnchor),
+            icon.widthAnchor.constraint(equalToConstant: 34),
+            icon.heightAnchor.constraint(equalToConstant: 34),
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
 private final class KPCRLoginCardView: KPCRShadowCard {
@@ -2514,10 +2584,9 @@ private final class KPCRDigitalMemberCardView: UIView {
     }
 
     private func shortMembershipId() -> String {
-        let raw = (membership.joinitMembershipId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let raw = (membership.cardNumber ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !raw.isEmpty else { return "Not available" }
-        let suffix = raw.suffix(6)
-        return String(suffix).uppercased()
+        return raw.uppercased()
     }
 
     private func loadPortrait() {
@@ -2531,9 +2600,8 @@ private final class KPCRDigitalMemberCardView: UIView {
     }
 
     private func makeQRCode() -> UIImage? {
-        let value = membership.cardUrl
-            ?? membership.joinitMembershipId
-            ?? membership.email
+        let value = membership.qrCodeUrl
+            ?? membership.cardNumber
             ?? "KPCR Signal Society"
         guard let data = value.data(using: .utf8),
               let filter = CIFilter(name: "CIQRCodeGenerator") else { return nil }
@@ -2606,7 +2674,7 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
             stack.addArrangedSubview(actionRow(primaryTitle: "Sign up or renew", secondaryTitle: nil))
         } else {
             stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Sign in required", isActive: false))
-            stack.addArrangedSubview(body("Sign in to check your Signal Society membership, view your member card, and add it to Apple Wallet."))
+            stack.addArrangedSubview(body("Sign in to check your Signal Society membership, view your member card, and unlock member perks."))
         }
 
         let insets = payload?.membership != nil
