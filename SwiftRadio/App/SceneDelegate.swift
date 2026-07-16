@@ -655,11 +655,7 @@ extension KPCRNowPlayingCenter: FRadioPlayerObserver {
 }
 
 private enum KPCRAPI {
-    #if DEBUG
-    static let base = "http://127.0.0.1:4321"
-    #else
     static let base = "https://kpcr.org"
-    #endif
 
     static func fetchHome() async -> KPCRHomePayload {
         await fetch("/api/mobile/home") ?? KPCRHomePayload(currentShow: nil, recentlyPlayed: [], upNext: [])
@@ -1601,6 +1597,7 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
             contentStack.addArrangedSubview(KPCRMyKPCRTabsView(selected: selectedSection) { [weak self] section in
                 self?.selectedSection = section
                 self?.render()
+                if section == .signal { self?.loadMembership(force: true) }
             })
             switch selectedSection {
             case .shows:
@@ -1652,8 +1649,9 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
         }
     }
 
-    private func loadMembership() {
+    private func loadMembership(force: Bool = false) {
         guard KPCRSession.isLoggedIn, !isLoadingMembership else { return }
+        if !force && membershipPayload != nil { return }
         isLoadingMembership = true
         render()
         Task { [weak self] in
