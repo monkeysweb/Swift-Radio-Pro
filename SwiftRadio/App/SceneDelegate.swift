@@ -2584,7 +2584,7 @@ private final class KPCRDigitalMemberCardView: UIView {
     }
 
     private func shortMembershipId() -> String {
-        let raw = (membership.cardNumber ?? membership.joinitMembershipId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let raw = (membership.cardNumber ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !raw.isEmpty else { return "Not available" }
         return raw.uppercased()
     }
@@ -3122,6 +3122,7 @@ private final class KPCRProfileViewController: UIViewController {
         avatar.clipsToBounds = true
         avatar.backgroundColor = .clear
         avatarContainer.addSubview(avatar)
+        loadJoinItAvatar(into: avatar)
 
         let user = KPCRSession.currentUser
         let name = label(user?.displayName ?? user?.username ?? "Pirate Cat Listener", 24, .black)
@@ -3153,6 +3154,18 @@ private final class KPCRProfileViewController: UIViewController {
             avatar.centerYAnchor.constraint(equalTo: avatarContainer.centerYAnchor),
             signOut.heightAnchor.constraint(equalToConstant: 54),
         ])
+    }
+
+    private func loadJoinItAvatar(into avatar: UIImageView) {
+        guard KPCRSession.isLoggedIn else { return }
+        Task {
+            guard let urlString = try? await KPCRAPI.fetchMembership().membership.profileImageUrl,
+                  let url = URL(string: urlString),
+                  let image = await NetworkService.fetchImage(from: url) else { return }
+            await MainActor.run {
+                avatar.image = image
+            }
+        }
     }
 
     private func formField(_ title: String, keyboard: UIKeyboardType = .default, isSecure: Bool = false) -> (stack: UIStackView, input: UITextField) {
