@@ -460,16 +460,19 @@ private final class KPCRNowPlayingCenter: NSObject {
     }
 
     func refreshFromPlayer() {
-        let title = clean(player.currentMetadata?.trackName)
-        let artist = clean(player.currentMetadata?.artistName)
+        // Only update from live stream metadata when we actually have a track —
+        // the player reports nil metadata whenever it isn't actively connected
+        // (app launch, after stop, buffering gaps), and that should never blank
+        // out a good title/artist already set from the schedule or recent-tracks
+        // poll. "Currently playing" must reflect the station, not local playback.
+        guard let title = clean(player.currentMetadata?.trackName),
+              let artist = clean(player.currentMetadata?.artistName) else { return }
         guard title != currentTitle || artist != currentArtist else { return }
         currentTitle = title
         currentArtist = artist
         currentArtwork = artwork(for: title, artist: artist)
-        if let title, let artist {
-            addRecent(title: title, artist: artist)
-            scheduleArtworkFetch(title: title, artist: artist)
-        }
+        addRecent(title: title, artist: artist)
+        scheduleArtworkFetch(title: title, artist: artist)
         notify()
     }
 
@@ -1121,6 +1124,17 @@ private final class KPCRHeaderView: UIView {
 
         let accountButton = KPCRSession.isLoggedIn ? avatarButton() : signInButton()
         accountButton.addTarget(self, action: #selector(avatarTapped), for: .touchUpInside)
+        if KPCRSession.isLoggedIn, !KPCRSession.hasUploadedAvatar {
+            Task { [weak accountButton] in
+                guard let payload = try? await KPCRAPI.fetchMembership(),
+                      let urlString = payload.membership.profileImageURL ?? payload.membership.profileImageUrl,
+                      let url = URL(string: urlString),
+                      let image = await NetworkService.fetchImage(from: url) else { return }
+                await MainActor.run {
+                    accountButton?.setImage(image.withRenderingMode(.alwaysOriginal), for: .normal)
+                }
+            }
+        }
 
         logo.translatesAutoresizingMaskIntoConstraints = false
         logoBadge.translatesAutoresizingMaskIntoConstraints = false
@@ -2047,19 +2061,39 @@ private final class KPCRTrackCardView: KPCRShadowCard {
         image.layer.cornerRadius = 10
         image.layer.borderWidth = 1.5
         image.layer.borderColor = KPCRStyle.ink.cgColor
+
+        // No-artwork placeholder: the KPCR cat mark at ~1/3 width, centered,
+        // tinted black at low opacity — hidden once real artwork loads.
+        let fallbackIcon = UIImageView(image: UIImage(named: "trackArtworkFallback")?.withRenderingMode(.alwaysTemplate))
+        fallbackIcon.tintColor = UIColor.black.withAlphaComponent(0.3)
+        fallbackIcon.contentMode = .scaleAspectFit
+        fallbackIcon.translatesAutoresizingMaskIntoConstraints = false
+        image.addSubview(fallbackIcon)
+        NSLayoutConstraint.activate([
+            fallbackIcon.centerXAnchor.constraint(equalTo: image.centerXAnchor),
+            fallbackIcon.centerYAnchor.constraint(equalTo: image.centerYAnchor),
+            fallbackIcon.widthAnchor.constraint(equalTo: image.widthAnchor, multiplier: 1.0 / 3.0),
+            fallbackIcon.heightAnchor.constraint(equalTo: fallbackIcon.widthAnchor, multiplier: 81.0 / 100.0),
+        ])
+        func setArtwork(_ img: UIImage?) {
+            guard let img else { return }
+            image.image = img
+            fallbackIcon.isHidden = true
+        }
+
         if let imageUrl = track.imageUrl, let url = URL(string: imageUrl) {
             Task {
                 let fetched = await NetworkService.fetchImage(from: url)
-                await MainActor.run { if let fetched { image.image = fetched } }
+                await MainActor.run { setArtwork(fetched) }
             }
         } else if let cached = KPCRNowPlayingCenter.shared.artwork(for: track.title, artist: track.artist) {
-            image.image = cached
+            setArtwork(cached)
         } else {
             KPCRNowPlayingCenter.shared.fetchArtwork(for: track)
             _ = NotificationCenter.default.addObserver(forName: .kpcrNowPlayingChanged, object: nil, queue: .main) { _ in
                 Task { @MainActor in
                     if image.image == nil, let cached = KPCRNowPlayingCenter.shared.artwork(for: track.title, artist: track.artist) {
-                        image.image = cached
+                        setArtwork(cached)
                     }
                 }
             }
@@ -2105,6 +2139,7 @@ private final class KPCRTrackCardView: KPCRShadowCard {
 
 private final class KPCRHeroCardView: KPCRShadowCard {
     private let artwork = UIImageView()
+    private let fallbackIcon = UIImageView(image: UIImage(named: "trackArtworkFallback")?.withRenderingMode(.alwaysTemplate))
     private let trackTitle = label("Currently Playing", 28, .black)
     private let artistName = label("Waiting for track info", 18, .medium)
     private var notificationToken: NSObjectProtocol?
@@ -2119,6 +2154,17 @@ private final class KPCRHeroCardView: KPCRShadowCard {
         artwork.layer.cornerRadius = 10
         artwork.layer.borderWidth = 2
         artwork.layer.borderColor = KPCRStyle.ink.cgColor
+
+        fallbackIcon.tintColor = UIColor.black.withAlphaComponent(0.3)
+        fallbackIcon.contentMode = .scaleAspectFit
+        fallbackIcon.translatesAutoresizingMaskIntoConstraints = false
+        artwork.addSubview(fallbackIcon)
+        NSLayoutConstraint.activate([
+            fallbackIcon.centerXAnchor.constraint(equalTo: artwork.centerXAnchor),
+            fallbackIcon.centerYAnchor.constraint(equalTo: artwork.centerYAnchor),
+            fallbackIcon.widthAnchor.constraint(equalTo: artwork.widthAnchor, multiplier: 1.0 / 3.0),
+            fallbackIcon.heightAnchor.constraint(equalTo: fallbackIcon.widthAnchor, multiplier: 81.0 / 100.0),
+        ])
 
         let section = label("Currently playing:", 17, .bold)
         let dividerTop = UIView()
@@ -2152,7 +2198,9 @@ private final class KPCRHeroCardView: KPCRShadowCard {
     private func refresh() {
         trackTitle.text = KPCRNowPlayingCenter.shared.displayTitle ?? "Live from KPCR 92.9FM"
         artistName.text = KPCRNowPlayingCenter.shared.displayArtist ?? "Pirate Cat Radio"
-        artwork.image = KPCRNowPlayingCenter.shared.displayArtwork
+        let image = KPCRNowPlayingCenter.shared.displayArtwork
+        artwork.image = image
+        fallbackIcon.isHidden = image != nil
     }
 }
 
@@ -2476,10 +2524,8 @@ private final class KPCRDigitalMemberCardView: UIView {
         layer.borderColor = UIColor.white.withAlphaComponent(0.36).cgColor
         clipsToBounds = true
 
-        let mark = label("KPCR", 15, .black, KPCRStyle.yellow)
-        mark.textAlignment = .left
-        mark.adjustsFontSizeToFitWidth = true
-        mark.minimumScaleFactor = 0.7
+        let mark = UIImageView(image: UIImage(named: "logo"))
+        mark.contentMode = .scaleAspectFit
 
         let title = label("KPCR - Signal Society", 19, .black, .white)
         title.adjustsFontSizeToFitWidth = true
@@ -2545,8 +2591,9 @@ private final class KPCRDigitalMemberCardView: UIView {
             mark.topAnchor.constraint(equalTo: topAnchor, constant: 24),
             mark.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
             mark.widthAnchor.constraint(equalToConstant: 54),
+            mark.heightAnchor.constraint(equalTo: mark.widthAnchor),
 
-            title.firstBaselineAnchor.constraint(equalTo: mark.firstBaselineAnchor),
+            title.centerYAnchor.constraint(equalTo: mark.centerYAnchor),
             title.leadingAnchor.constraint(equalTo: mark.trailingAnchor, constant: 12),
             title.trailingAnchor.constraint(lessThanOrEqualTo: statusKicker.leadingAnchor, constant: -14),
 
