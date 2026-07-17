@@ -2524,7 +2524,8 @@ private final class KPCRDigitalMemberCardView: UIView {
         layer.borderColor = UIColor.white.withAlphaComponent(0.36).cgColor
         clipsToBounds = true
 
-        let mark = UIImageView(image: UIImage(named: "logo"))
+        let mark = UIImageView(image: UIImage(named: "catEyesMark")?.withRenderingMode(.alwaysTemplate))
+        mark.tintColor = KPCRStyle.yellow
         mark.contentMode = .scaleAspectFit
 
         let title = label("KPCR - Signal Society", 19, .black, .white)
@@ -2590,8 +2591,8 @@ private final class KPCRDigitalMemberCardView: UIView {
 
             mark.topAnchor.constraint(equalTo: topAnchor, constant: 24),
             mark.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            mark.widthAnchor.constraint(equalToConstant: 54),
-            mark.heightAnchor.constraint(equalTo: mark.widthAnchor),
+            mark.widthAnchor.constraint(equalToConstant: 60),
+            mark.heightAnchor.constraint(equalTo: mark.widthAnchor, multiplier: 23.0 / 64.0),
 
             title.centerYAnchor.constraint(equalTo: mark.centerYAnchor),
             title.leadingAnchor.constraint(equalTo: mark.trailingAnchor, constant: 12),
