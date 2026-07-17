@@ -118,6 +118,35 @@ private enum KPCRSession {
         UserDefaults.standard.removeObject(forKey: tokenKey)
         UserDefaults.standard.removeObject(forKey: userKey)
         Task { @MainActor in KPCRFavoritesStore.shared.clear() }
+        KPCRMembershipCache.clear()
+    }
+}
+
+/// Shared, reactive cache for the logged-in user's Join It profile photo.
+///
+/// KPCRBaseViewController's header is a stored property (`let header =
+/// KPCRHeaderView()`), so it's built once at view-controller allocation —
+/// often before login has actually happened or before the network/token is
+/// ready. A one-shot fetch at that moment can silently fail and never
+/// retries. Any part of the app that successfully fetches membership stores
+/// it here and posts `.kpcrMembershipChanged`, so avatar UI elsewhere
+/// (built earlier or later, doesn't matter) can pick it up whenever it's
+/// actually available instead of depending on its own construction timing.
+private enum KPCRMembershipCache {
+    static let didChange = Notification.Name("kpcrMembershipChanged")
+    private(set) static var profileImageURL: String?
+
+    static func store(_ payload: KPCRMembershipPayload) {
+        let urlString = payload.membership.profileImageURL ?? payload.membership.profileImageUrl
+        guard urlString != profileImageURL else { return }
+        profileImageURL = urlString
+        NotificationCenter.default.post(name: didChange, object: nil)
+    }
+
+    static func clear() {
+        guard profileImageURL != nil else { return }
+        profileImageURL = nil
+        NotificationCenter.default.post(name: didChange, object: nil)
     }
 }
 
@@ -1098,6 +1127,8 @@ private final class KPCRHeaderView: UIView {
     private let logoSize: NSLayoutConstraint
     private var logoTapCount = 0
     private var lastLogoTapTime: CFTimeInterval = 0
+    private weak var accountButton: UIButton?
+    private var membershipToken: NSObjectProtocol?
 
     override init(frame: CGRect) {
         logoSize = logoBadge.widthAnchor.constraint(equalToConstant: 96)
@@ -1106,6 +1137,10 @@ private final class KPCRHeaderView: UIView {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    deinit {
+        if let membershipToken { NotificationCenter.default.removeObserver(membershipToken) }
+    }
 
     private func build() {
         backgroundColor = KPCRStyle.paper
@@ -1124,15 +1159,11 @@ private final class KPCRHeaderView: UIView {
 
         let accountButton = KPCRSession.isLoggedIn ? avatarButton() : signInButton()
         accountButton.addTarget(self, action: #selector(avatarTapped), for: .touchUpInside)
+        self.accountButton = accountButton
         if KPCRSession.isLoggedIn, !KPCRSession.hasUploadedAvatar {
-            Task { [weak accountButton] in
-                guard let payload = try? await KPCRAPI.fetchMembership(),
-                      let urlString = payload.membership.profileImageURL ?? payload.membership.profileImageUrl,
-                      let url = URL(string: urlString),
-                      let image = await NetworkService.fetchImage(from: url) else { return }
-                await MainActor.run {
-                    accountButton?.setImage(image.withRenderingMode(.alwaysOriginal), for: .normal)
-                }
+            refreshAvatarFromMembership()
+            membershipToken = NotificationCenter.default.addObserver(forName: KPCRMembershipCache.didChange, object: nil, queue: .main) { [weak self] _ in
+                self?.refreshAvatarFromMembership()
             }
         }
 
@@ -1189,6 +1220,27 @@ private final class KPCRHeaderView: UIView {
         button.layer.cornerRadius = 19
         button.backgroundColor = KPCRStyle.paper
         return button
+    }
+
+    private func refreshAvatarFromMembership() {
+        if let cached = KPCRMembershipCache.profileImageURL {
+            applyAvatar(from: cached)
+            return
+        }
+        Task {
+            guard let payload = try? await KPCRAPI.fetchMembership() else { return }
+            await MainActor.run { KPCRMembershipCache.store(payload) }
+        }
+    }
+
+    private func applyAvatar(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        Task { [weak self] in
+            guard let image = await NetworkService.fetchImage(from: url) else { return }
+            await MainActor.run {
+                self?.accountButton?.setImage(image.withRenderingMode(.alwaysOriginal), for: .normal)
+            }
+        }
     }
 
     private func avatarButton() -> UIButton {
@@ -1687,6 +1739,7 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
                     self?.membershipError = nil
                     self?.isLoadingMembership = false
                     self?.render()
+                    KPCRMembershipCache.store(payload)
                 }
             } catch KPCRAPIError.authRequired {
                 await MainActor.run {
@@ -3236,11 +3289,13 @@ private final class KPCRProfileViewController: UIViewController {
     private func loadJoinItAvatar(into avatar: UIImageView) {
         guard KPCRSession.isLoggedIn else { return }
         Task {
-            guard let urlString = try? await KPCRAPI.fetchMembership().membership.profileImageUrl,
+            guard let payload = try? await KPCRAPI.fetchMembership(),
+                  let urlString = payload.membership.profileImageURL ?? payload.membership.profileImageUrl,
                   let url = URL(string: urlString),
                   let image = await NetworkService.fetchImage(from: url) else { return }
             await MainActor.run {
                 avatar.image = image
+                KPCRMembershipCache.store(payload)
             }
         }
     }
