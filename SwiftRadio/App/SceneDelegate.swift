@@ -4,6 +4,8 @@ import UIKit
 import SafariServices
 import FRadioPlayer
 import CoreImage
+import AuthenticationServices
+import CryptoKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
@@ -761,6 +763,17 @@ private enum KPCRAPI {
             "username": username,
             "password": password,
         ])
+    }
+
+    static func signInWithApple(identityToken: String, email: String?, fullName: String?) async throws -> KPCRAuthResponse {
+        var body = ["identityToken": identityToken]
+        if let email { body["email"] = email }
+        if let fullName { body["fullName"] = fullName }
+        return try await auth(path: "/api/mobile/auth/apple", body: body)
+    }
+
+    static func signInWithGoogle(idToken: String) async throws -> KPCRAuthResponse {
+        try await auth(path: "/api/mobile/auth/google", body: ["idToken": idToken])
     }
 
     static func fetchFavorites() async throws -> KPCRFavoritesPayload {
@@ -3173,6 +3186,7 @@ private final class KPCRProfileViewController: UIViewController {
     private weak var usernameField: UITextField?
     private weak var passwordField: UITextField?
     private weak var primaryButton: UIButton?
+    private var webAuthSession: ASWebAuthenticationSession?
 
     init(startCreatingAccount: Bool = false) {
         self.startCreatingAccount = startCreatingAccount
@@ -3270,15 +3284,27 @@ private final class KPCRProfileViewController: UIViewController {
         forgotPassword.contentHorizontalAlignment = .right
         forgotPassword.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
 
-        let stack = UIStackView(arrangedSubviews: [title, email.stack, username.stack, password.stack, forgotPassword, primary])
+        let divider = authDivider()
+        let apple = socialAuthButton(systemName: "apple.logo", title: nil, tint: .black)
+        apple.addTarget(self, action: #selector(appleTapped), for: .touchUpInside)
+        let google = socialAuthButton(systemName: nil, title: "G", tint: KPCRStyle.coral)
+        google.addTarget(self, action: #selector(googleTapped), for: .touchUpInside)
+        let socialButtons = UIStackView(arrangedSubviews: [apple, google])
+        socialButtons.axis = .horizontal
+        socialButtons.spacing = 18
+        socialButtons.distribution = .fillEqually
+
+        let stack = UIStackView(arrangedSubviews: [title, email.stack, username.stack, password.stack, forgotPassword, primary, divider, socialButtons])
         stack.axis = .vertical
         stack.spacing = 14
         stack.alignment = .fill
         card.addContent(stack, insets: UIEdgeInsets(top: 24, left: 18, bottom: 20, right: 18))
         contentStack.addArrangedSubview(card)
         NSLayoutConstraint.activate([
-            card.heightAnchor.constraint(greaterThanOrEqualToConstant: isCreatingAccount ? 460 : 370),
+            card.heightAnchor.constraint(greaterThanOrEqualToConstant: isCreatingAccount ? 520 : 430),
             primary.heightAnchor.constraint(equalToConstant: 50),
+            apple.heightAnchor.constraint(equalToConstant: 50),
+            google.heightAnchor.constraint(equalToConstant: 50),
         ])
     }
 
@@ -3385,6 +3411,157 @@ private final class KPCRProfileViewController: UIViewController {
         button.layer.borderWidth = 2
         button.layer.borderColor = KPCRStyle.ink.cgColor
         return button
+    }
+
+    private func authDivider() -> UIView {
+        let left = UIView()
+        let right = UIView()
+        left.backgroundColor = KPCRStyle.ink
+        right.backgroundColor = KPCRStyle.ink
+        let text = label("OR", 20, .black)
+        text.textAlignment = .center
+        let row = UIStackView(arrangedSubviews: [left, text, right])
+        row.axis = .horizontal
+        row.alignment = .center
+        row.spacing = 12
+        NSLayoutConstraint.activate([
+            left.heightAnchor.constraint(equalToConstant: 2),
+            right.heightAnchor.constraint(equalToConstant: 2),
+            text.widthAnchor.constraint(equalToConstant: 42),
+        ])
+        return row
+    }
+
+    private func socialAuthButton(systemName: String?, title: String?, tint: UIColor) -> UIButton {
+        let button = UIButton(type: .system)
+        if let systemName {
+            button.setImage(UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 24, weight: .bold)), for: .normal)
+        } else {
+            button.setTitle(title, for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 28, weight: .bold)
+        }
+        button.tintColor = tint
+        button.setTitleColor(tint, for: .normal)
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 12
+        button.layer.borderWidth = 2
+        button.layer.borderColor = KPCRStyle.ink.cgColor
+        return button
+    }
+
+    private func completeSocialSignIn(_ response: KPCRAuthResponse) {
+        KPCRSession.signIn(token: response.token, user: response.user)
+        status.textColor = KPCRStyle.green
+        status.text = "Signed in."
+        status.isHidden = false
+        render()
+    }
+
+    private func failSocialSignIn(_ message: String) {
+        status.textColor = KPCRStyle.red
+        status.text = message
+        status.isHidden = false
+    }
+
+    @objc private func appleTapped() {
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests()
+    }
+
+    /// Google's native "iOS" OAuth client type only accepts its own
+    /// reversed-client-id URL scheme as a redirect — both values come from
+    /// the credential created in Google Cloud Console (APIs & Services →
+    /// Credentials → Create OAuth client ID → iOS, bundle ID org.kpcr.radio).
+    /// Runs the PKCE authorization-code flow via ASWebAuthenticationSession
+    /// rather than the GoogleSignIn SDK, so no extra dependency is needed.
+    @objc private func googleTapped() {
+        guard let clientId = Bundle.main.object(forInfoDictionaryKey: "GoogleClientID") as? String, !clientId.isEmpty, !clientId.hasPrefix("REPLACE_"),
+              let urlScheme = Bundle.main.object(forInfoDictionaryKey: "GoogleURLScheme") as? String, !urlScheme.isEmpty, !urlScheme.hasPrefix("REPLACE_") else {
+            failSocialSignIn("Google sign-in isn't configured yet.")
+            return
+        }
+
+        let verifier = Self.randomPKCEString()
+        let challenge = Self.pkceChallenge(for: verifier)
+        let redirectURI = "\(urlScheme):/oauth2redirect"
+
+        var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
+        components.queryItems = [
+            URLQueryItem(name: "client_id", value: clientId),
+            URLQueryItem(name: "redirect_uri", value: redirectURI),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "scope", value: "openid email profile"),
+            URLQueryItem(name: "code_challenge", value: challenge),
+            URLQueryItem(name: "code_challenge_method", value: "S256"),
+        ]
+        guard let authURL = components.url else { return }
+
+        let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: urlScheme) { [weak self] callbackURL, error in
+            guard let self else { return }
+            guard let callbackURL,
+                  let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "code" })?.value else {
+                if let nsError = error as NSError?, nsError.code == ASWebAuthenticationSessionError.canceledLogin.rawValue { return }
+                self.failSocialSignIn("Google sign-in was cancelled or failed.")
+                return
+            }
+            Task { await self.exchangeGoogleCode(code, verifier: verifier, redirectURI: redirectURI, clientId: clientId) }
+        }
+        session.presentationContextProvider = self
+        session.prefersEphemeralWebBrowserSession = true
+        webAuthSession = session
+        session.start()
+    }
+
+    private func exchangeGoogleCode(_ code: String, verifier: String, redirectURI: String, clientId: String) async {
+        await MainActor.run {
+            status.textColor = KPCRStyle.ink
+            status.text = "Signing in with Google..."
+            status.isHidden = false
+        }
+        do {
+            var request = URLRequest(url: URL(string: "https://oauth2.googleapis.com/token")!)
+            request.httpMethod = "POST"
+            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            var form = URLComponents()
+            form.queryItems = [
+                URLQueryItem(name: "client_id", value: clientId),
+                URLQueryItem(name: "code", value: code),
+                URLQueryItem(name: "code_verifier", value: verifier),
+                URLQueryItem(name: "grant_type", value: "authorization_code"),
+                URLQueryItem(name: "redirect_uri", value: redirectURI),
+            ]
+            request.httpBody = form.percentEncodedQuery?.data(using: .utf8)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse, 200...299 ~= http.statusCode,
+                  let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let idToken = payload["id_token"] as? String else {
+                throw KPCRAPIError.server("Google sign-in failed.")
+            }
+            let authResponse = try await KPCRAPI.signInWithGoogle(idToken: idToken)
+            await MainActor.run { self.completeSocialSignIn(authResponse) }
+        } catch {
+            await MainActor.run { self.failSocialSignIn(error.localizedDescription) }
+        }
+    }
+
+    private static func randomPKCEString(length: Int = 64) -> String {
+        let bytes = (0..<length).map { _ in UInt8.random(in: 0...255) }
+        return Data(bytes).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
+
+    private static func pkceChallenge(for verifier: String) -> String {
+        let hash = SHA256.hash(data: Data(verifier.utf8))
+        return Data(hash).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
     }
 
     @objc private func modeChanged() { render() }
@@ -3540,6 +3717,43 @@ private final class KPCRProfileViewController: UIViewController {
         render()
     }
     @objc private func done() { dismiss(animated: true) }
+}
+
+extension KPCRProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding, ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        view.window ?? ASPresentationAnchor()
+    }
+
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        view.window ?? ASPresentationAnchor()
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+              let tokenData = credential.identityToken,
+              let identityToken = String(data: tokenData, encoding: .utf8) else {
+            failSocialSignIn("Apple sign-in failed.")
+            return
+        }
+        let email = credential.email
+        let fullName = [credential.fullName?.givenName, credential.fullName?.familyName].compactMap { $0 }.joined(separator: " ")
+        status.textColor = KPCRStyle.ink
+        status.text = "Signing in with Apple..."
+        status.isHidden = false
+        Task { [weak self] in
+            do {
+                let response = try await KPCRAPI.signInWithApple(identityToken: identityToken, email: email, fullName: fullName.isEmpty ? nil : fullName)
+                await MainActor.run { self?.completeSocialSignIn(response) }
+            } catch {
+                await MainActor.run { self?.failSocialSignIn(error.localizedDescription) }
+            }
+        }
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        if let authError = error as? ASAuthorizationError, authError.code == .canceled { return }
+        failSocialSignIn("Apple sign-in failed.")
+    }
 }
 
 private final class KPCRAccountRowView: UIView {
