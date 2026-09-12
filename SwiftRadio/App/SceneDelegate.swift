@@ -2493,7 +2493,7 @@ private final class KPCRMyKPCRTabsView: UIView {
         stack.axis = .horizontal
         stack.spacing = 8
         stack.alignment = .center
-        stack.distribution = .fillEqually
+        stack.distribution = .fillProportionally
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
@@ -2509,10 +2509,10 @@ private final class KPCRMyKPCRTabsView: UIView {
     private func button(_ title: String, section: KPCRMyKPCRSection, selected: Bool) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title.uppercased(), for: .normal)
-        button.titleLabel?.font = KPCRStyle.rounded(section == .signal ? 11 : 16, weight: .black)
+        button.titleLabel?.font = KPCRStyle.rounded(16, weight: .black)
         button.titleLabel?.adjustsFontSizeToFitWidth = true
-        button.titleLabel?.minimumScaleFactor = 0.72
-        button.titleLabel?.lineBreakMode = .byClipping
+        button.titleLabel?.minimumScaleFactor = 0.6
+        button.titleLabel?.lineBreakMode = .byTruncatingTail
         button.tintColor = selected ? .white : KPCRStyle.ink
         button.backgroundColor = selected ? KPCRStyle.red : .clear
         button.layer.cornerRadius = 5
