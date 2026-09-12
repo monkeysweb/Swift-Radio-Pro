@@ -3124,6 +3124,7 @@ private final class KPCRDrawerViewController: UIViewController {
         addHeader("More", to: stack)
         addRow("star", "Review This App", to: stack) { [weak self] in self?.openURL?("https://kpcr.org") }
         addRow("ladybug", "Submit a Bug", to: stack) { [weak self] in self?.openURL?("https://kpcr.org/report-a-bug") }
+        addRow("hand.raised", "Privacy Policy", to: stack) { [weak self] in self?.openURL?("https://kpcr.org/privacy-policy") }
 
         NSLayoutConstraint.activate([
             panel.topAnchor.constraint(equalTo: view.topAnchor),
