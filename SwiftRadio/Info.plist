@@ -31,9 +31,9 @@
          Google only accepts that exact scheme as the redirect for this
          client type. Sign-in is disabled until both are filled in. -->
     <key>GoogleClientID</key>
-    <string>REPLACE_WITH_GOOGLE_IOS_CLIENT_ID</string>
+    <string>782479503013-c9v0t74vnf8uu4gg6invnc70rp6h8n9o.apps.googleusercontent.com</string>
     <key>GoogleURLScheme</key>
-    <string>REPLACE_WITH_GOOGLE_URL_SCHEME</string>
+    <string>com.googleusercontent.apps.782479503013-c9v0t74vnf8uu4gg6invnc70rp6h8n9o</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>This app would like to save the image associated with the current track and station to your photo library.</string>
     <key>NSUserActivityTypes</key>
