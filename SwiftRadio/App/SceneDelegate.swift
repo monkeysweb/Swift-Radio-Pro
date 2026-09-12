@@ -3558,7 +3558,7 @@ private final class KPCRProfileViewController: UIViewController {
     }
 
     private func deleteAccountTapped() {
-        let alert = UIAlertController(title: "Delete account?", message: "This removes your KPCR app account and saved favorites. Enter your password to confirm.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Delete account?", message: "This permanently deletes your KPCR app account, sign-in, and saved favorites — it cannot be undone. If you have a paid Signal Society membership through Join It, that's billed and managed separately and is not affected; cancel it directly with Join It. Enter your password to confirm.", preferredStyle: .alert)
         alert.addTextField { field in
             field.placeholder = "Password"
             field.isSecureTextEntry = true
