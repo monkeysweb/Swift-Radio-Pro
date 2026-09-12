@@ -84,6 +84,7 @@ private enum KPCRStyle {
 }
 
 private enum KPCRSession {
+    static let didChange = Notification.Name("kpcrSessionChanged")
     private static let tokenKey = "kpcr.mobile.token"
     private static let userKey = "kpcr.mobile.user"
     private static let avatarIndexKey = "kpcr.mobile.avatarIndex"
@@ -119,6 +120,7 @@ private enum KPCRSession {
             UserDefaults.standard.set(Int.random(in: 0..<KPCRAvatarAssets.count), forKey: avatarIndexKey)
         }
         Task { @MainActor in await KPCRFavoritesStore.shared.load() }
+        NotificationCenter.default.post(name: didChange, object: nil)
     }
 
     static func signOut() {
@@ -126,6 +128,7 @@ private enum KPCRSession {
         UserDefaults.standard.removeObject(forKey: userKey)
         Task { @MainActor in KPCRFavoritesStore.shared.clear() }
         KPCRMembershipCache.clear()
+        NotificationCenter.default.post(name: didChange, object: nil)
     }
 }
 
@@ -1135,7 +1138,9 @@ private final class KPCRHeaderView: UIView {
     private var logoTapCount = 0
     private var lastLogoTapTime: CFTimeInterval = 0
     private weak var accountButton: UIButton?
+    private weak var menuButton: UIButton?
     private var membershipToken: NSObjectProtocol?
+    private var sessionToken: NSObjectProtocol?
 
     override init(frame: CGRect) {
         logoSize = logoBadge.widthAnchor.constraint(equalToConstant: 96)
@@ -1147,6 +1152,7 @@ private final class KPCRHeaderView: UIView {
 
     deinit {
         if let membershipToken { NotificationCenter.default.removeObserver(membershipToken) }
+        if let sessionToken { NotificationCenter.default.removeObserver(sessionToken) }
     }
 
     private func build() {
@@ -1154,6 +1160,7 @@ private final class KPCRHeaderView: UIView {
 
         let menu = iconButton("line.3.horizontal")
         menu.addTarget(self, action: #selector(menuTapped), for: .touchUpInside)
+        menuButton = menu
 
         let logo = UIImageView(image: UIImage(named: "logo"))
         logo.contentMode = .scaleAspectFit
@@ -1164,21 +1171,11 @@ private final class KPCRHeaderView: UIView {
         logoBadge.clipsToBounds = true
         logoBadge.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(logoTapped)))
 
-        let accountButton = KPCRSession.isLoggedIn ? avatarButton() : signInButton()
-        accountButton.addTarget(self, action: #selector(avatarTapped), for: .touchUpInside)
-        self.accountButton = accountButton
-        if KPCRSession.isLoggedIn, !KPCRSession.hasUploadedAvatar {
-            refreshAvatarFromMembership()
-            membershipToken = NotificationCenter.default.addObserver(forName: KPCRMembershipCache.didChange, object: nil, queue: .main) { [weak self] _ in
-                self?.refreshAvatarFromMembership()
-            }
-        }
-
         logo.translatesAutoresizingMaskIntoConstraints = false
         logoBadge.translatesAutoresizingMaskIntoConstraints = false
         logoBadge.addSubview(logo)
 
-        [menu, logoBadge, accountButton].forEach {
+        [menu, logoBadge].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             addSubview($0)
         }
@@ -1197,12 +1194,46 @@ private final class KPCRHeaderView: UIView {
             logo.centerYAnchor.constraint(equalTo: logoBadge.centerYAnchor),
             logo.widthAnchor.constraint(equalTo: logoBadge.widthAnchor, multiplier: 0.86),
             logo.heightAnchor.constraint(equalTo: logoBadge.heightAnchor, multiplier: 0.86),
+        ])
 
+        installAccountButton()
+
+        sessionToken = NotificationCenter.default.addObserver(forName: KPCRSession.didChange, object: nil, queue: .main) { [weak self] _ in
+            self?.installAccountButton()
+        }
+    }
+
+    /// Rebuilds the sign-in pill / avatar circle from scratch. Called at
+    /// launch and again whenever `KPCRSession.didChange` fires, since
+    /// sign-in/out normally happens from a sheet presented well after this
+    /// header was already built.
+    private func installAccountButton() {
+        accountButton?.removeFromSuperview()
+        if let membershipToken {
+            NotificationCenter.default.removeObserver(membershipToken)
+            self.membershipToken = nil
+        }
+        guard let menuButton else { return }
+
+        let accountButton = KPCRSession.isLoggedIn ? avatarButton() : signInButton()
+        accountButton.addTarget(self, action: #selector(avatarTapped), for: .touchUpInside)
+        accountButton.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(accountButton)
+        self.accountButton = accountButton
+
+        NSLayoutConstraint.activate([
             accountButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -22),
-            accountButton.centerYAnchor.constraint(equalTo: menu.centerYAnchor),
+            accountButton.centerYAnchor.constraint(equalTo: menuButton.centerYAnchor),
             accountButton.widthAnchor.constraint(equalToConstant: KPCRSession.isLoggedIn ? 46 : 74),
             accountButton.heightAnchor.constraint(equalToConstant: KPCRSession.isLoggedIn ? 46 : 38),
         ])
+
+        if KPCRSession.isLoggedIn, !KPCRSession.hasUploadedAvatar {
+            refreshAvatarFromMembership()
+            membershipToken = NotificationCenter.default.addObserver(forName: KPCRMembershipCache.didChange, object: nil, queue: .main) { [weak self] _ in
+                self?.refreshAvatarFromMembership()
+            }
+        }
     }
 
     func setLogoProgress(_ offset: CGFloat) {
