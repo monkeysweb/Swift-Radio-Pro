@@ -3270,27 +3270,15 @@ private final class KPCRProfileViewController: UIViewController {
         forgotPassword.contentHorizontalAlignment = .right
         forgotPassword.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
 
-        let divider = authDivider()
-        let apple = socialAuthButton(systemName: "apple.logo", title: nil, tint: .black)
-        apple.addTarget(self, action: #selector(authUnavailable), for: .touchUpInside)
-        let google = socialAuthButton(systemName: nil, title: "G", tint: KPCRStyle.coral)
-        google.addTarget(self, action: #selector(authUnavailable), for: .touchUpInside)
-        let socialButtons = UIStackView(arrangedSubviews: [apple, google])
-        socialButtons.axis = .horizontal
-        socialButtons.spacing = 18
-        socialButtons.distribution = .fillEqually
-
-        let stack = UIStackView(arrangedSubviews: [title, email.stack, username.stack, password.stack, forgotPassword, primary, divider, socialButtons])
+        let stack = UIStackView(arrangedSubviews: [title, email.stack, username.stack, password.stack, forgotPassword, primary])
         stack.axis = .vertical
         stack.spacing = 14
         stack.alignment = .fill
         card.addContent(stack, insets: UIEdgeInsets(top: 24, left: 18, bottom: 20, right: 18))
         contentStack.addArrangedSubview(card)
         NSLayoutConstraint.activate([
-            card.heightAnchor.constraint(greaterThanOrEqualToConstant: isCreatingAccount ? 520 : 430),
+            card.heightAnchor.constraint(greaterThanOrEqualToConstant: isCreatingAccount ? 460 : 370),
             primary.heightAnchor.constraint(equalToConstant: 50),
-            apple.heightAnchor.constraint(equalToConstant: 50),
-            google.heightAnchor.constraint(equalToConstant: 50),
         ])
     }
 
@@ -3399,42 +3387,6 @@ private final class KPCRProfileViewController: UIViewController {
         return button
     }
 
-    private func authDivider() -> UIView {
-        let left = UIView()
-        let right = UIView()
-        left.backgroundColor = KPCRStyle.ink
-        right.backgroundColor = KPCRStyle.ink
-        let text = label("OR", 20, .black)
-        text.textAlignment = .center
-        let row = UIStackView(arrangedSubviews: [left, text, right])
-        row.axis = .horizontal
-        row.alignment = .center
-        row.spacing = 12
-        NSLayoutConstraint.activate([
-            left.heightAnchor.constraint(equalToConstant: 2),
-            right.heightAnchor.constraint(equalToConstant: 2),
-            text.widthAnchor.constraint(equalToConstant: 42),
-        ])
-        return row
-    }
-
-    private func socialAuthButton(systemName: String?, title: String?, tint: UIColor) -> UIButton {
-        let button = UIButton(type: .system)
-        if let systemName {
-            button.setImage(UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 24, weight: .bold)), for: .normal)
-        } else {
-            button.setTitle(title, for: .normal)
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 28, weight: .bold)
-        }
-        button.tintColor = tint
-        button.setTitleColor(tint, for: .normal)
-        button.backgroundColor = .white
-        button.layer.cornerRadius = 12
-        button.layer.borderWidth = 2
-        button.layer.borderColor = KPCRStyle.ink.cgColor
-        return button
-    }
-
     @objc private func modeChanged() { render() }
     @objc private func submitAuth() {
         let isCreatingAccount = modeControl.selectedSegmentIndex == 1
@@ -3483,12 +3435,6 @@ private final class KPCRProfileViewController: UIViewController {
                 }
             }
         }
-    }
-
-    @objc private func authUnavailable() {
-        status.text = "Apple sign in is coming soon. Use email and password for now."
-        status.textColor = KPCRStyle.red
-        status.isHidden = false
     }
 
     @objc private func forgotPasswordTapped() {
