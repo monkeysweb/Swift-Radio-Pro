@@ -69,6 +69,13 @@ private enum KPCRStyle {
     static let ink = UIColor(red: 0.04, green: 0.04, blue: 0.04, alpha: 1)
     static let drawer = UIColor(red: 0.10, green: 0.18, blue: 0.20, alpha: 1)
 
+    /// Same rotation the website's events calendar cycles through per tile
+    /// (src/pages/events.astro's TILE_COLORS), mapped onto this app's palette.
+    static let tileColors: [UIColor] = [coral, purple, yellow, green, blue, red, cyan]
+    static func tileColor(_ index: Int) -> UIColor {
+        tileColors[((index % tileColors.count) + tileColors.count) % tileColors.count]
+    }
+
     static func rounded(_ size: CGFloat, weight: UIFont.Weight = .regular) -> UIFont {
         let font = UIFont.systemFont(ofSize: size, weight: weight)
         let descriptor = font.fontDescriptor.withDesign(.rounded) ?? font.fontDescriptor
@@ -1495,8 +1502,8 @@ private final class KPCRWinViewController: KPCRBaseViewController {
         Task { @MainActor in
             let payload = await KPCRAPI.fetchGiveaways()
             let giveaways = payload.giveaways.isEmpty ? KPCRAPI.sampleGiveaways.giveaways : payload.giveaways
-            for item in giveaways {
-                contentStack.addArrangedSubview(KPCRGiveawayCardView(item: item) { [weak self] in
+            for (index, item) in giveaways.enumerated() {
+                contentStack.addArrangedSubview(KPCRGiveawayCardView(item: item, color: KPCRStyle.tileColor(index)) { [weak self] in
                     self?.open(item.giveawayUrl ?? "https://forms.gle/GwYXvzUwyZ24LDx28")
                 })
             }
@@ -2260,10 +2267,10 @@ private final class KPCRHeroCardView: KPCRShadowCard {
 private final class KPCRGiveawayCardView: KPCRShadowCard {
     private let onTap: (() -> Void)?
 
-    init(item: KPCRGiveaway, onTap: (() -> Void)? = nil) {
+    init(item: KPCRGiveaway, color: UIColor = KPCRStyle.green, onTap: (() -> Void)? = nil) {
         self.onTap = onTap
         super.init(frame: .zero)
-        backgroundColor = KPCRStyle.green
+        backgroundColor = color
         isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
         let title = label(item.title, 18, .black)
