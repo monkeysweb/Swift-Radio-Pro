@@ -1094,7 +1094,19 @@ private class KPCRBaseViewController: UIViewController {
 
     func open(_ urlString: String) {
         guard let url = URL(string: urlString) else { return }
-        present(SFSafariViewController(url: url), animated: true)
+        present(SFSafariViewController(url: kpcrEmbeddedURL(url)), animated: true)
+    }
+
+    /// Marks kpcr.org links as opened from inside the app (`?app=1`) so the
+    /// site can skip its own radio player bar — the app already shows one.
+    /// Third-party links (Join It, ticketing, social, etc.) are left alone.
+    private func kpcrEmbeddedURL(_ url: URL) -> URL {
+        guard let host = url.host, host == "kpcr.org" || host.hasSuffix(".kpcr.org"),
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url }
+        var items = components.queryItems ?? []
+        items.append(URLQueryItem(name: "app", value: "1"))
+        components.queryItems = items
+        return components.url ?? url
     }
 
     func showDetail(_ show: KPCRShow) {
