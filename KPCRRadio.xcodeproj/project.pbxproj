@@ -13,6 +13,7 @@
 		6258DCDA22D93A5400166C65 /* LogoShareView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6258DCD922D93A5400166C65 /* LogoShareView.xib */; };
 		9409E11C1ABF6FEA00312E2B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9409E11B1ABF6FEA00312E2B /* AppDelegate.swift */; };
 		9409E1261ABF6FEA00312E2B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9409E1251ABF6FEA00312E2B /* Images.xcassets */; };
+		B52737353B5F311F3FF54952 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 58BAB1D0CD5EE7807FA06B91 /* PrivacyInfo.xcprivacy */; };
 		94452E551AD7086800BFE7A5 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94452E541AD7086800BFE7A5 /* AboutViewController.swift */; };
 		945DB3C21AD58E3A00495EBB /* stations.json in Resources */ = {isa = PBXBuildFile; fileRef = 945DB3C11AD58E3A00495EBB /* stations.json */; };
 		945DB3C51AD5A6E200495EBB /* NothingFoundCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 945DB3C41AD5A6E200495EBB /* NothingFoundCell.xib */; };
@@ -84,6 +85,7 @@
 		CE6A3E47291F376D0058C82A /* NothingFoundCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 945DB3C41AD5A6E200495EBB /* NothingFoundCell.xib */; };
 		CE6A3E48291F376D0058C82A /* LogoShareView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6258DCD922D93A5400166C65 /* LogoShareView.xib */; };
 		CE6A3E4B291F376D0058C82A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9409E1251ABF6FEA00312E2B /* Images.xcassets */; };
+		F212AF54E6B0AB862EFF3DF7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 58BAB1D0CD5EE7807FA06B91 /* PrivacyInfo.xcprivacy */; };
 		CE6ECCFA292F13DF008B3C16 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6ECCF9292F13DF008B3C16 /* Coordinator.swift */; };
 		CE6ECCFB292F13E6008B3C16 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6ECCF9292F13DF008B3C16 /* Coordinator.swift */; };
 		CE6ECCFD292F1445008B3C16 /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6ECCFC292F1445008B3C16 /* MainCoordinator.swift */; };
@@ -154,6 +156,7 @@
 		9409E11A1ABF6FEA00312E2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9409E11B1ABF6FEA00312E2B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9409E1251ABF6FEA00312E2B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		58BAB1D0CD5EE7807FA06B91 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		94452E541AD7086800BFE7A5 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		945DB3C11AD58E3A00495EBB /* stations.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = stations.json; sourceTree = "<group>"; };
 		945DB3C41AD5A6E200495EBB /* NothingFoundCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NothingFoundCell.xib; sourceTree = "<group>"; };
@@ -279,6 +282,7 @@
 				BB0000012D4E000000000001 /* App */,
 				BB0000022D4E000000000002 /* Config */,
 				9409E1251ABF6FEA00312E2B /* Images.xcassets */,
+				58BAB1D0CD5EE7807FA06B91 /* PrivacyInfo.xcprivacy */,
 				CA5F00062F41000000000003 /* Localizable.xcstrings */,
 				9409E11A1ABF6FEA00312E2B /* Info.plist */,
 				CEA82F492921F260009E9FA0 /* Info-CarPlay.plist */,
@@ -559,6 +563,7 @@
 				945DB3C51AD5A6E200495EBB /* NothingFoundCell.xib in Resources */,
 				6258DCDA22D93A5400166C65 /* LogoShareView.xib in Resources */,
 				9409E1261ABF6FEA00312E2B /* Images.xcassets in Resources */,
+				B52737353B5F311F3FF54952 /* PrivacyInfo.xcprivacy in Resources */,
 				CA5F00042F41000000000001 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -571,6 +576,7 @@
 				CE6A3E47291F376D0058C82A /* NothingFoundCell.xib in Resources */,
 				CE6A3E48291F376D0058C82A /* LogoShareView.xib in Resources */,
 				CE6A3E4B291F376D0058C82A /* Images.xcassets in Resources */,
+				F212AF54E6B0AB862EFF3DF7 /* PrivacyInfo.xcprivacy in Resources */,
 				CA5F00052F41000000000002 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
