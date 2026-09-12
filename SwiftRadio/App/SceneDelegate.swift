@@ -1020,9 +1020,6 @@ private final class KPCRTabBarController: UITabBarController {
             miniPlayer.bottomAnchor.constraint(equalTo: tabBar.topAnchor),
             miniPlayer.heightAnchor.constraint(equalToConstant: 76),
         ])
-        for controller in viewControllers ?? [] {
-            controller.additionalSafeAreaInsets.bottom = 76
-        }
     }
 
     private func configureAudio() {
@@ -1055,6 +1052,12 @@ private class KPCRBaseViewController: UIViewController {
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.delegate = self
+        // The tab bar's mini player floats above the tab bar as a plain
+        // overlay, not a container chrome element, so it isn't reflected in
+        // the system safe area. Reserve room for it directly so scrolled
+        // content always clears it instead of settling underneath it.
+        scrollView.contentInset.bottom = 76
+        scrollView.verticalScrollIndicatorInsets.bottom = 76
         contentStack.axis = .vertical
         contentStack.spacing = 22
         contentStack.translatesAutoresizingMaskIntoConstraints = false
