@@ -251,7 +251,14 @@ private enum KPCRAPIError: LocalizedError {
         case .authRequired:
             return "Please sign in again."
         case .server(let message):
-            return message
+            switch message {
+            case "invalid_credentials": return "That email and password don't match."
+            case "invalid_current_password": return "That password isn't right."
+            case "type_delete_to_confirm": return "Type DELETE to confirm deleting your account."
+            case "valid_password_required": return "Passwords need at least 8 characters."
+            case "rate_limited": return "Too many tries. Please wait a bit and try again."
+            default: return message
+            }
         }
     }
 }
@@ -300,6 +307,7 @@ private struct KPCRGiveaway: Codable {
     let imageUrl: String?
     let giveawayUrl: String?
     let description: String?
+    var entryOpen: Bool? = nil
 }
 
 private struct KPCRHomePayload: Codable {
@@ -743,11 +751,11 @@ private enum KPCRAPI {
     }
 
     static func fetchSchedule() async -> KPCRSchedulePayload {
-        await fetch("/api/mobile/schedule") ?? sampleSchedule
+        await fetch("/api/mobile/schedule") ?? emptySchedule
     }
 
     static func fetchGiveaways() async -> KPCRGiveawaysPayload {
-        await fetch("/api/mobile/giveaways") ?? sampleGiveaways
+        await fetch("/api/mobile/giveaways") ?? KPCRGiveawaysPayload(giveaways: [])
     }
 
     static func signIn(email: String, password: String) async throws -> KPCRAuthResponse {
@@ -959,30 +967,9 @@ private enum KPCRAPI {
         return String(body[body.index(after: open)..<close])
     }
 
-    static let sampleShows = [
-        KPCRShow(slug: "ocean-of-tears", title: "Ocean of Tears", host: "Captain Scabheart", imageUrl: nil, day: "Tuesday", time: "10:00 AM - 11:00 AM", description: "Sea-swept sounds from the Central Coast.", podcastRss: nil),
-        KPCRShow(slug: "beat-salad", title: "Beat Salad", host: "Mason O'Brien", imageUrl: nil, day: "Tuesday", time: "11:00 AM - 12:00 PM", description: "Fresh local rhythm and deep cuts.", podcastRss: nil),
-        KPCRShow(slug: "blue-hour", title: "The Blue Hour", host: "Blue Corvidae", imageUrl: nil, day: "Tuesday", time: "12:00 PM - 2:00 PM", description: "Afternoon radio for wandering ears.", podcastRss: nil),
-        KPCRShow(slug: "private-pdx", title: "Your Own Private PDX", host: "DJ Squiffy", imageUrl: nil, day: "Tuesday", time: "3:00 PM - 5:00 PM", description: "Weekly indie music and conversation.", podcastRss: nil),
-        KPCRShow(slug: "porch-hang", title: "Porch Hang", host: "Ash Allen", imageUrl: nil, day: "Tuesday", time: "5:00 PM - 6:00 PM", description: "Easygoing songs and neighborhood energy.", podcastRss: nil),
-    ]
-
-    static let sampleTracks = [
-        KPCRTrack(title: "Do Your Math", artist: "Mr. Vale's Math Class", imageUrl: nil, airedAt: "9:24 AM"),
-        KPCRTrack(title: "Under the Peach Tree", artist: "Kat White", imageUrl: nil, airedAt: "9:21 AM"),
-        KPCRTrack(title: "Kid Again", artist: "FLOOR IS LAVA", imageUrl: nil, airedAt: "9:16 AM"),
-        KPCRTrack(title: "Paradise Tax", artist: "Paradise Tax", imageUrl: nil, airedAt: "9:11 AM"),
-        KPCRTrack(title: "No Romeo", artist: "Samie Jo", imageUrl: nil, airedAt: "9:08 AM"),
-    ]
-
-    static let sampleHome = KPCRHomePayload(currentShow: sampleShows.first, recentlyPlayed: sampleTracks, upNext: Array(sampleShows.dropFirst()))
-    static let sampleSchedule = KPCRSchedulePayload(days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map { day in
-        KPCRSchedulePayload.Day(day: day, shows: day == "Tuesday" ? sampleShows : Array(sampleShows.prefix(3)))
+    static let emptySchedule = KPCRSchedulePayload(days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map {
+        KPCRSchedulePayload.Day(day: $0, shows: [])
     })
-    static let sampleGiveaways = KPCRGiveawaysPayload(giveaways: [
-        KPCRGiveaway(slug: "felton-show", title: "Felton Music Hall Giveaway", artist: "KPCR Concerts+", venue: "Felton Music Hall", city: "Felton", startDate: nil, imageUrl: nil, giveawayUrl: "https://forms.gle/GwYXvzUwyZ24LDx28", description: "Signal Society members get double entries."),
-        KPCRGiveaway(slug: "catalyst-show", title: "The Catalyst Ticket Giveaway", artist: "KPCR Concerts+", venue: "The Catalyst", city: "Santa Cruz", startDate: nil, imageUrl: nil, giveawayUrl: "https://forms.gle/GwYXvzUwyZ24LDx28", description: "Enter to win tickets from KPCR.")
-    ])
 }
 
 private final class KPCRTabBarController: UITabBarController {
@@ -999,14 +986,12 @@ private final class KPCRTabBarController: UITabBarController {
         let home = KPCRHomeViewController()
         let schedule = KPCRScheduleViewController()
         let win = KPCRWinViewController()
-        let chat = KPCRComingSoonViewController(titleText: "Chat", message: "KPCR chat is coming soon.")
         let my = KPCRMyPCRViewController()
 
         viewControllers = [
             nav(home, "Home", "house"),
             nav(schedule, "Schedule", "calendar"),
             nav(win, "Win", "ticket"),
-            nav(chat, "Chat", "bubble.left"),
             nav(my, "My KPCR", "antenna.radiowaves.left.and.right"),
         ]
 
@@ -1415,7 +1400,7 @@ private final class KPCRHeaderView: UIView {
 private final class KPCRHomeViewController: KPCRBaseViewController {
     private let recentHost = UIStackView()
     private let upNextHost = UIStackView()
-    private var fallbackRecentTracks: [KPCRTrack] = KPCRAPI.sampleTracks
+    private var fallbackRecentTracks: [KPCRTrack] = []
     private var notificationToken: NSObjectProtocol?
     private var refreshTask: Task<Void, Never>?
 
@@ -1460,7 +1445,7 @@ private final class KPCRHomeViewController: KPCRBaseViewController {
         upNextHost.arrangedSubviews.forEach { $0.removeFromSuperview() }
         let shows = Array(payload.upNext.prefix(10))
         if shows.isEmpty {
-            upNextHost.addArrangedSubview(KPCREmptyCardView(message: "Upcoming shows are unavailable. Check the mobile API at \(KPCRAPI.base)/api/mobile/home."))
+            upNextHost.addArrangedSubview(KPCREmptyCardView(message: "Upcoming shows are unavailable right now."))
         } else {
             for show in shows {
                 upNextHost.addArrangedSubview(KPCRShowCardView(show: show) { [weak self] in
@@ -1473,14 +1458,15 @@ private final class KPCRHomeViewController: KPCRBaseViewController {
     private func renderRecent() {
         recentHost.arrangedSubviews.forEach { $0.removeFromSuperview() }
         let liveTracks = KPCRNowPlayingCenter.shared.recentTracks
-        recentHost.addArrangedSubview(KPCRTrackCarouselView(tracks: liveTracks.isEmpty ? fallbackRecentTracks : liveTracks))
+        let tracks = liveTracks.isEmpty ? fallbackRecentTracks : liveTracks
+        recentHost.addArrangedSubview(tracks.isEmpty ? KPCREmptyCardView(message: "Recently played songs will show up here.") : KPCRTrackCarouselView(tracks: tracks))
     }
 }
 
 private final class KPCRScheduleViewController: KPCRBaseViewController {
     private let daysStack = UIStackView()
     private let listStack = UIStackView()
-    private var schedule: KPCRSchedulePayload = KPCRAPI.sampleSchedule
+    private var schedule: KPCRSchedulePayload = KPCRAPI.emptySchedule
     private var selectedDay = "Monday"
 
     override func viewDidLoad() {
@@ -1560,10 +1546,13 @@ private final class KPCRWinViewController: KPCRBaseViewController {
         contentStack.addArrangedSubview(sectionTitle("Win Tickets"))
         Task { @MainActor in
             let payload = await KPCRAPI.fetchGiveaways()
-            let giveaways = payload.giveaways.isEmpty ? KPCRAPI.sampleGiveaways.giveaways : payload.giveaways
-            for (index, item) in giveaways.enumerated() {
+            if payload.giveaways.isEmpty {
+                contentStack.addArrangedSubview(KPCREmptyCardView(message: "No ticket giveaways right now. Check back soon, or listen on air for new ones."))
+            }
+            for (index, item) in payload.giveaways.enumerated() {
                 contentStack.addArrangedSubview(KPCRGiveawayCardView(item: item, color: KPCRStyle.tileColor(index)) { [weak self] in
-                    self?.open(item.giveawayUrl ?? "https://forms.gle/GwYXvzUwyZ24LDx28")
+                    guard let url = item.giveawayUrl, !url.isEmpty else { return }
+                    self?.open(url)
                 })
             }
         }
@@ -2333,8 +2322,8 @@ private final class KPCRGiveawayCardView: KPCRShadowCard {
         isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
         let title = label(item.title, 18, .black)
-        let venue = label([item.venue, item.city].compactMap { $0 }.joined(separator: " · "), 15, .regular)
-        let enter = label("Enter to win ->", 15, .bold, KPCRStyle.ink)
+        let venue = label([Self.showDate(item.startDate), item.venue].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "), 15, .regular)
+        let enter = label(item.entryOpen == false ? "Entries closed · details ->" : "Enter to win ->", 15, .bold, KPCRStyle.ink)
         let image = item.imageUrl == nil ? KPCRTicketFallbackView() : KPCRSquareImageView(urlString: item.imageUrl)
         let stack = UIStackView(arrangedSubviews: [title, venue, enter])
         stack.axis = .vertical
@@ -2356,6 +2345,20 @@ private final class KPCRGiveawayCardView: KPCRShadowCard {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    // Concert times are station (Pacific) time wherever the listener is.
+    private static func showDate(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let iso = ISO8601DateFormatter()
+        let fractional = ISO8601DateFormatter()
+        fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let date = iso.date(from: value) ?? fractional.date(from: value) else { return nil }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+        formatter.dateFormat = "EEE, MMM d"
+        return formatter.string(from: date)
+    }
 
     @objc private func tapped() {
         onTap?()
@@ -3020,9 +3023,10 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
         return formatter.string(from: date)
     }
 
+    // Membership is sold on the web, so checkout leaves the app for Safari.
     @objc private func joinTapped() {
-        guard let checkoutUrl else { return }
-        onOpen?(checkoutUrl)
+        guard let checkoutUrl, let url = URL(string: checkoutUrl) else { return }
+        UIApplication.shared.open(url)
     }
 
     @objc private func cardTapped() {
@@ -3135,7 +3139,6 @@ private final class KPCRDrawerViewController: UIViewController {
         addRow("camera", "Instagram", to: stack) { [weak self] in self?.openURL?("https://www.instagram.com/kpcrfm/") }
         addRow("play.rectangle.fill", "YouTube", to: stack) { [weak self] in self?.openURL?("https://www.youtube.com/@kpcrfm") }
         addHeader("More", to: stack)
-        addRow("star", "Review This App", to: stack) { [weak self] in self?.openURL?("https://kpcr.org") }
         addRow("ladybug", "Submit a Bug", to: stack) { [weak self] in self?.openURL?("https://kpcr.org/report-a-bug") }
         addRow("hand.raised", "Privacy Policy", to: stack) { [weak self] in self?.openURL?("https://kpcr.org/privacy-policy") }
 
@@ -3681,10 +3684,11 @@ private final class KPCRProfileViewController: UIViewController {
     }
 
     private func deleteAccountTapped() {
-        let alert = UIAlertController(title: "Delete account?", message: "This permanently deletes your KPCR app account, sign-in, and saved favorites — it cannot be undone. If you have a paid Signal Society membership through Join It, that's billed and managed separately and is not affected; cancel it directly with Join It. Enter your password to confirm.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Delete account?", message: "This permanently deletes your KPCR app account, sign-in, and saved favorites — it cannot be undone. If you have a paid Signal Society membership through Join It, that's billed and managed separately and is not affected; cancel it directly with Join It. Enter your password to confirm. If you signed in with Apple or Google, type DELETE instead.", preferredStyle: .alert)
         alert.addTextField { field in
-            field.placeholder = "Password"
+            field.placeholder = "Password or DELETE"
             field.isSecureTextEntry = true
+            field.autocapitalizationType = .allCharacters
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self, weak alert] _ in
