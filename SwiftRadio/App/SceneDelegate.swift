@@ -541,7 +541,8 @@ private final class KPCRNowPlayingCenter: NSObject {
 
     var displayArtist: String? {
         if let show = liveShowForDisplay {
-            return "w/ \(show.host)"
+            let host = show.host.trimmingCharacters(in: .whitespacesAndNewlines)
+            return host.isEmpty ? nil : "w/ \(host)"
         }
         return currentArtist
     }
@@ -1612,8 +1613,10 @@ private final class KPCRShowDetailViewController: KPCRBaseViewController {
 
         let title = label(show.title, 30, .black)
         title.numberOfLines = 0
-        let host = label("w/ \(show.host)", 22, .regular)
+        let hostName = show.host.trimmingCharacters(in: .whitespacesAndNewlines)
+        let host = label(hostName.isEmpty ? "" : "w/ \(hostName)", 22, .regular)
         host.numberOfLines = 0
+        host.isHidden = hostName.isEmpty
         let schedule = label(([show.day, show.time].compactMap { $0 }.joined(separator: " · ")).replacingOccurrences(of: ":00", with: ""), 18, .bold, KPCRStyle.red)
         schedule.numberOfLines = 0
         let description = label(show.description ?? "More show details coming soon.", 18, .regular)

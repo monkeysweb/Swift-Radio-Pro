@@ -7,9 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C91BF2634DAD4FFE9CCCF808 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA58087B2D40BAC000F8082B /* CarPlaySceneDelegate.swift */; };
+		092ABC15C8E69C2E6E7867E7 /* WatchPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB93B3C365B26E4768777638 /* WatchPlayer.swift */; };
+		167D995F48460571E4766001 /* KPCRWatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B12A27D989C0B270C349015 /* KPCRWatchBridge.swift */; };
+		18B276F0F5F584CAF0A09685 /* KPCRComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7C3CD360CE40829E66E4C8 /* KPCRComplication.swift */; };
+		291B783EDCBFA27355881511 /* KPCRRadio Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8C7E8EFCD7E82E957DAC82BF /* KPCRRadio Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C5545BD1C1124DE00728469 /* SwiftRadioUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5545BC1C1124DE00728469 /* SwiftRadioUITests.swift */; };
 		53113F39230C720900462C0E /* ShareActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53113F38230C720900462C0E /* ShareActivity.swift */; };
+		5A83ABE9EBA415FC62CC5922 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 822EBBB8315A806A2AFBD5B3 /* Assets.xcassets */; };
 		6258DCD822D93A3500166C65 /* LogoShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6258DCD722D93A3500166C65 /* LogoShareView.swift */; };
 		6258DCDA22D93A5400166C65 /* LogoShareView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6258DCD922D93A5400166C65 /* LogoShareView.xib */; };
 		9409E11C1ABF6FEA00312E2B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9409E11B1ABF6FEA00312E2B /* AppDelegate.swift */; };
@@ -21,11 +25,15 @@
 		94D1D0A51AD6D6230022CA11 /* InfoDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D1D0A41AD6D6230022CA11 /* InfoDetailViewController.swift */; };
 		94D260911B45D20000DE671C /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D260901B45D20000DE671C /* Config.swift */; };
 		94E9761C1B1A8F3200F52B1E /* UIImage+DropShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94E9761B1B1A8F3200F52B1E /* UIImage+DropShadow.swift */; };
+		A3181A1F6A4412D824CFE3AB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0541DBD674BDE03017F90824 /* Assets.xcassets */; };
 		AA0000011ACC9DEE005B7C26 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000001ACC9DEE005B7C26 /* NetworkService.swift */; };
 		AA000002291F376D0058C82A /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000001ACC9DEE005B7C26 /* NetworkService.swift */; };
 		AA0000101ACC9DEE005B7C26 /* LNPopupController in Frameworks */ = {isa = PBXBuildFile; productRef = AA0000111ACC9DEE005B7C26 /* LNPopupController */; };
 		AA0000121ACC9DEE005B7C26 /* LNPopupController in Frameworks */ = {isa = PBXBuildFile; productRef = AA0000131ACC9DEE005B7C26 /* LNPopupController */; };
+		B2CE01EEB57A682B30CB3729 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BE2D08A33F286276B1C5704 /* Foundation.framework */; };
 		B52737353B5F311F3FF54952 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 58BAB1D0CD5EE7807FA06B91 /* PrivacyInfo.xcprivacy */; };
+		C232B42885F48654EB199ADF /* KPCRNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC66420BC9E1981A27262893 /* KPCRNowPlaying.swift */; };
+		C91BF2634DAD4FFE9CCCF808 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA58087B2D40BAC000F8082B /* CarPlaySceneDelegate.swift */; };
 		CA142F672D3D8E2F0071A388 /* NSLayoutConstraint+with.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA142F662D3D8E280071A388 /* NSLayoutConstraint+with.swift */; };
 		CA142F682D3D8E2F0071A388 /* NSLayoutConstraint+with.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA142F662D3D8E280071A388 /* NSLayoutConstraint+with.swift */; };
 		CA142F6A2D3D9A0D0071A388 /* BottomSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA142F692D3D9A0D0071A388 /* BottomSheetViewController.swift */; };
@@ -55,6 +63,7 @@
 		CA5F00042F41000000000001 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CA5F00062F41000000000003 /* Localizable.xcstrings */; };
 		CA5F00052F41000000000002 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CA5F00062F41000000000003 /* Localizable.xcstrings */; };
 		CA900001200000000000000A /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = CA900002200000000000000A /* MarqueeLabel */; };
+		CAAF389834EB2600EE756926 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BE2D08A33F286276B1C5704 /* Foundation.framework */; };
 		CAB4E8292D3D7DC7001282E9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAB4E8282D3D7DC7001282E9 /* SceneDelegate.swift */; };
 		CAB4E82A2D3D7DC7001282E9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAB4E8282D3D7DC7001282E9 /* SceneDelegate.swift */; };
 		CE321FF329371140001572BD /* Bundle+appName.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE321FF229371140001572BD /* Bundle+appName.swift */; };
@@ -107,7 +116,10 @@
 		CEE9A27C2B535C780018FE68 /* AlbumArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE9A27A2B535C780018FE68 /* AlbumArtworkView.swift */; };
 		CEE9A27E2B54A5520018FE68 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE9A27D2B54A5520018FE68 /* ControlsView.swift */; };
 		CEE9A27F2B54A5520018FE68 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE9A27D2B54A5520018FE68 /* ControlsView.swift */; };
+		D77658051123AA27ECB899EF /* KPCRNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC66420BC9E1981A27262893 /* KPCRNowPlaying.swift */; };
+		F001C1190245FE3B5E154F2C /* KPCRRadio Watch Complication.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 79236AED959AFD4D4FBDE3BA /* KPCRRadio Watch Complication.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F212AF54E6B0AB862EFF3DF7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 58BAB1D0CD5EE7807FA06B91 /* PrivacyInfo.xcprivacy */; };
+		FFFBC4CED294C497EAC619DA /* KPCRWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA3D60813F6D61A708976180 /* KPCRWatchApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,9 +130,45 @@
 			remoteGlobalIDString = 9409E1151ABF6FEA00312E2B;
 			remoteInfo = KPCRRadio;
 		};
+		7B3EC1A1D8CD30017E295410 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9409E10E1ABF6FE900312E2B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 406CD27424335EDB7AA10AB7;
+			remoteInfo = "KPCRRadio Watch";
+		};
+		DB546B54C10FE3EA463FB101 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9409E10E1ABF6FE900312E2B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 91575E3D2E1065C224A97EB2;
+			remoteInfo = "KPCRRadio Watch Complication";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4BB33946B507E26F9368DFD0 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F001C1190245FE3B5E154F2C /* KPCRRadio Watch Complication.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB60A339260A0B0AFE0029CB /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				291B783EDCBFA27355881511 /* KPCRRadio Watch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA2B6C712F327016000CB4D4 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -146,15 +194,20 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C49739AD36A2484F90743346 /* KPCRRadio.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KPCRRadio.entitlements; sourceTree = "<group>"; };
+		03C12A386F9D3AC738977C69 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0541DBD674BDE03017F90824 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C5545BA1C1124DE00728469 /* SwiftRadioUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftRadioUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5545BC1C1124DE00728469 /* SwiftRadioUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftRadioUITests.swift; sourceTree = "<group>"; };
 		2C5545BE1C1124DE00728469 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3CB9F40F300AA49A0038FDC6 /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
+		4B12A27D989C0B270C349015 /* KPCRWatchBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KPCRWatchBridge.swift; sourceTree = "<group>"; };
 		53113F38230C720900462C0E /* ShareActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareActivity.swift; sourceTree = "<group>"; };
 		58BAB1D0CD5EE7807FA06B91 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6258DCD722D93A3500166C65 /* LogoShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoShareView.swift; sourceTree = "<group>"; };
 		6258DCD922D93A5400166C65 /* LogoShareView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LogoShareView.xib; sourceTree = "<group>"; };
+		79236AED959AFD4D4FBDE3BA /* KPCRRadio Watch Complication.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "KPCRRadio Watch Complication.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		822EBBB8315A806A2AFBD5B3 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8C7E8EFCD7E82E957DAC82BF /* KPCRRadio Watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KPCRRadio Watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9409E1161ABF6FEA00312E2B /* KPCRRadio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KPCRRadio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9409E11A1ABF6FEA00312E2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9409E11B1ABF6FEA00312E2B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -166,7 +219,10 @@
 		94D1D0A41AD6D6230022CA11 /* InfoDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoDetailViewController.swift; sourceTree = "<group>"; };
 		94D260901B45D20000DE671C /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		94E9761B1B1A8F3200F52B1E /* UIImage+DropShadow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+DropShadow.swift"; sourceTree = "<group>"; };
+		9BE2D08A33F286276B1C5704 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AA0000001ACC9DEE005B7C26 /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		BA3D60813F6D61A708976180 /* KPCRWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KPCRWatchApp.swift; sourceTree = "<group>"; };
+		C49739AD36A2484F90743346 /* KPCRRadio.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KPCRRadio.entitlements; sourceTree = "<group>"; };
 		CA142F662D3D8E280071A388 /* NSLayoutConstraint+with.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSLayoutConstraint+with.swift"; sourceTree = "<group>"; };
 		CA142F692D3D9A0D0071A388 /* BottomSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetViewController.swift; sourceTree = "<group>"; };
 		CA142F6C2D3D9DFB0071A388 /* BottomSheetHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHandler.swift; sourceTree = "<group>"; };
@@ -181,6 +237,8 @@
 		CA5F00012F40A00000000001 /* GradientBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBackgroundView.swift; sourceTree = "<group>"; };
 		CA5F00062F41000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		CAB4E8282D3D7DC7001282E9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		CBE9D32D1B527E1E3757F7A2 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CC66420BC9E1981A27262893 /* KPCRNowPlaying.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KPCRNowPlaying.swift; sourceTree = "<group>"; };
 		CE0A4994291F3A220071C0CC /* SwiftRadio.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SwiftRadio.entitlements; sourceTree = "<group>"; };
 		CE321FF229371140001572BD /* Bundle+appName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+appName.swift"; sourceTree = "<group>"; };
 		CE6036122A47A87A00E15E15 /* StationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationsViewController.swift; sourceTree = "<group>"; };
@@ -200,6 +258,8 @@
 		CEE9A2772B5345C30018FE68 /* NowPlayingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewController.swift; sourceTree = "<group>"; };
 		CEE9A27A2B535C780018FE68 /* AlbumArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumArtworkView.swift; sourceTree = "<group>"; };
 		CEE9A27D2B54A5520018FE68 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
+		DB93B3C365B26E4768777638 /* WatchPlayer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchPlayer.swift; sourceTree = "<group>"; };
+		EA7C3CD360CE40829E66E4C8 /* KPCRComplication.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KPCRComplication.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -207,6 +267,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5136FB591C76195FF059A724 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2CE01EEB57A682B30CB3729 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,6 +302,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EF3099654907664E0EC997EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CAAF389834EB2600EE756926 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -246,6 +322,15 @@
 			path = SwiftRadioUITests;
 			sourceTree = "<group>";
 		};
+		33FECC7AE40674A21E25E885 /* KPCRWatchShared */ = {
+			isa = PBXGroup;
+			children = (
+				CC66420BC9E1981A27262893 /* KPCRNowPlaying.swift */,
+			);
+			name = KPCRWatchShared;
+			path = KPCRWatchShared;
+			sourceTree = "<group>";
+		};
 		9409E10D1ABF6FE900312E2B = {
 			isa = PBXGroup;
 			children = (
@@ -254,6 +339,9 @@
 				2C5545BB1C1124DE00728469 /* SwiftRadioUITests */,
 				9409E1171ABF6FEA00312E2B /* Products */,
 				CE6036262A48F70A00E15E15 /* Frameworks */,
+				F4788C7B8E503C91356776B5 /* KPCRWatch */,
+				33FECC7AE40674A21E25E885 /* KPCRWatchShared */,
+				B4C5915F206538D93B940240 /* KPCRWatchComplication */,
 			);
 			sourceTree = "<group>";
 		};
@@ -263,6 +351,8 @@
 				9409E1161ABF6FEA00312E2B /* KPCRRadio.app */,
 				2C5545BA1C1124DE00728469 /* SwiftRadioUITests.xctest */,
 				CE6A3E4F291F376D0058C82A /* SwiftRadio-CarPlay.app */,
+				8C7E8EFCD7E82E957DAC82BF /* KPCRRadio Watch.app */,
+				79236AED959AFD4D4FBDE3BA /* KPCRRadio Watch Complication.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -293,11 +383,23 @@
 			path = SwiftRadio;
 			sourceTree = "<group>";
 		};
+		B4C5915F206538D93B940240 /* KPCRWatchComplication */ = {
+			isa = PBXGroup;
+			children = (
+				EA7C3CD360CE40829E66E4C8 /* KPCRComplication.swift */,
+				822EBBB8315A806A2AFBD5B3 /* Assets.xcassets */,
+				CBE9D32D1B527E1E3757F7A2 /* Info.plist */,
+			);
+			name = KPCRWatchComplication;
+			path = KPCRWatchComplication;
+			sourceTree = "<group>";
+		};
 		BB0000012D4E000000000001 /* App */ = {
 			isa = PBXGroup;
 			children = (
 				9409E11B1ABF6FEA00312E2B /* AppDelegate.swift */,
 				CAB4E8282D3D7DC7001282E9 /* SceneDelegate.swift */,
+				4B12A27D989C0B270C349015 /* KPCRWatchBridge.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -318,6 +420,14 @@
 				CA2511B42D458033006D1A99 /* AudioSetupService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		BD94818CA739F0088B983F95 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				9BE2D08A33F286276B1C5704 /* Foundation.framework */,
+			);
+			name = watchOS;
 			sourceTree = "<group>";
 		};
 		CE0A4993291F39660071C0CC /* CarPlay */ = {
@@ -343,6 +453,7 @@
 		CE6036262A48F70A00E15E15 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BD94818CA739F0088B983F95 /* watchOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -425,6 +536,18 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		F4788C7B8E503C91356776B5 /* KPCRWatch */ = {
+			isa = PBXGroup;
+			children = (
+				BA3D60813F6D61A708976180 /* KPCRWatchApp.swift */,
+				DB93B3C365B26E4768777638 /* WatchPlayer.swift */,
+				0541DBD674BDE03017F90824 /* Assets.xcassets */,
+				03C12A386F9D3AC738977C69 /* Info.plist */,
+			);
+			name = KPCRWatch;
+			path = KPCRWatch;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -446,6 +569,42 @@
 			productReference = 2C5545BA1C1124DE00728469 /* SwiftRadioUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		406CD27424335EDB7AA10AB7 /* KPCRRadio Watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DDF9FA9430A38BA7F96A23AF /* Build configuration list for PBXNativeTarget "KPCRRadio Watch" */;
+			buildPhases = (
+				E88118BAF7492FC8D188CD22 /* Sources */,
+				5136FB591C76195FF059A724 /* Frameworks */,
+				71AE563DD1848EA5BBD4D764 /* Resources */,
+				4BB33946B507E26F9368DFD0 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				45FB96A684123122A2CE5E80 /* PBXTargetDependency */,
+			);
+			name = "KPCRRadio Watch";
+			productName = "KPCRRadio Watch";
+			productReference = 8C7E8EFCD7E82E957DAC82BF /* KPCRRadio Watch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		91575E3D2E1065C224A97EB2 /* KPCRRadio Watch Complication */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0F2362C545DCE50F0541A7EB /* Build configuration list for PBXNativeTarget "KPCRRadio Watch Complication" */;
+			buildPhases = (
+				D45678ECE2739F56B7DBBB70 /* Sources */,
+				EF3099654907664E0EC997EB /* Frameworks */,
+				C5CBC28A2223EFA4657B114A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KPCRRadio Watch Complication";
+			productName = "KPCRRadio Watch Complication";
+			productReference = 79236AED959AFD4D4FBDE3BA /* KPCRRadio Watch Complication.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9409E1151ABF6FEA00312E2B /* KPCRRadio */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9409E1381ABF6FEA00312E2B /* Build configuration list for PBXNativeTarget "KPCRRadio" */;
@@ -454,10 +613,12 @@
 				9409E1131ABF6FEA00312E2B /* Frameworks */,
 				9409E1141ABF6FEA00312E2B /* Resources */,
 				CA2B6C732F327107000CB4D4 /* Embed Frameworks */,
+				BB60A339260A0B0AFE0029CB /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9F874EE485F662D40F1A9331 /* PBXTargetDependency */,
 			);
 			name = KPCRRadio;
 			packageProductDependencies = (
@@ -513,6 +674,14 @@
 						LastSwiftMigration = 1020;
 						TestTargetID = 9409E1151ABF6FEA00312E2B;
 					};
+					406CD27424335EDB7AA10AB7 = {
+						CreatedOnToolsVersion = 26.3;
+						DevelopmentTeam = VH5JGHQR35;
+					};
+					91575E3D2E1065C224A97EB2 = {
+						CreatedOnToolsVersion = 26.3;
+						DevelopmentTeam = VH5JGHQR35;
+					};
 					9409E1151ABF6FEA00312E2B = {
 						CreatedOnToolsVersion = 6.2;
 						LastSwiftMigration = 1020;
@@ -546,6 +715,8 @@
 				9409E1151ABF6FEA00312E2B /* KPCRRadio */,
 				CE6A3E2B291F376D0058C82A /* SwiftRadio-CarPlay */,
 				2C5545B91C1124DE00728469 /* SwiftRadioUITests */,
+				406CD27424335EDB7AA10AB7 /* KPCRRadio Watch */,
+				91575E3D2E1065C224A97EB2 /* KPCRRadio Watch Complication */,
 			);
 		};
 /* End PBXProject section */
@@ -555,6 +726,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		71AE563DD1848EA5BBD4D764 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3181A1F6A4412D824CFE3AB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,6 +747,14 @@
 				9409E1261ABF6FEA00312E2B /* Images.xcassets in Resources */,
 				B52737353B5F311F3FF54952 /* PrivacyInfo.xcprivacy in Resources */,
 				CA5F00042F41000000000001 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5CBC28A2223EFA4657B114A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A83ABE9EBA415FC62CC5922 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -637,6 +824,7 @@
 				CA5F00022F40A00000000002 /* GradientBackgroundView.swift in Sources */,
 				CEDABBEB291217AF00C0367F /* UIImageView+Cache.swift in Sources */,
 				CE6036132A47A87A00E15E15 /* StationsViewController.swift in Sources */,
+				167D995F48460571E4766001 /* KPCRWatchBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -685,6 +873,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D45678ECE2739F56B7DBBB70 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18B276F0F5F584CAF0A09685 /* KPCRComplication.swift in Sources */,
+				C232B42885F48654EB199ADF /* KPCRNowPlaying.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E88118BAF7492FC8D188CD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FFFBC4CED294C497EAC619DA /* KPCRWatchApp.swift in Sources */,
+				092ABC15C8E69C2E6E7867E7 /* WatchPlayer.swift in Sources */,
+				D77658051123AA27ECB899EF /* KPCRNowPlaying.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -692,6 +899,18 @@
 			isa = PBXTargetDependency;
 			target = 9409E1151ABF6FEA00312E2B /* KPCRRadio */;
 			targetProxy = 2C5545BF1C1124DE00728469 /* PBXContainerItemProxy */;
+		};
+		45FB96A684123122A2CE5E80 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "KPCRRadio Watch Complication";
+			target = 91575E3D2E1065C224A97EB2 /* KPCRRadio Watch Complication */;
+			targetProxy = DB546B54C10FE3EA463FB101 /* PBXContainerItemProxy */;
+		};
+		9F874EE485F662D40F1A9331 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "KPCRRadio Watch";
+			target = 406CD27424335EDB7AA10AB7 /* KPCRRadio Watch */;
+			targetProxy = 7B3EC1A1D8CD30017E295410 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -733,6 +952,33 @@
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = KPCRRadio;
 				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
+		3986E70284CBC72575542354 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VH5JGHQR35;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KPCRWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp;
+				PRODUCT_NAME = KPCRWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -851,6 +1097,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SwiftRadio/KPCRRadio.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -878,7 +1125,6 @@
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				CODE_SIGN_ENTITLEMENTS = SwiftRadio/KPCRRadio.entitlements;
 			};
 			name = Debug;
 		};
@@ -886,6 +1132,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SwiftRadio/KPCRRadio.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -912,7 +1159,33 @@
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				CODE_SIGN_ENTITLEMENTS = SwiftRadio/KPCRRadio.entitlements;
+			};
+			name = Release;
+		};
+		C1A3E76D9693B6BD8D6B64D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VH5JGHQR35;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KPCRWatchComplication/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp.complication;
+				PRODUCT_NAME = KPCRWatchComplication;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -987,9 +1260,70 @@
 			};
 			name = Release;
 		};
+		E314D97CDA1A2F2FDDF39102 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VH5JGHQR35;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KPCRWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp;
+				PRODUCT_NAME = KPCRWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		E66821F7DF177835AEBCE1DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VH5JGHQR35;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KPCRWatchComplication/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp.complication;
+				PRODUCT_NAME = KPCRWatchComplication;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0F2362C545DCE50F0541A7EB /* Build configuration list for PBXNativeTarget "KPCRRadio Watch Complication" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1A3E76D9693B6BD8D6B64D3 /* Release */,
+				E66821F7DF177835AEBCE1DF /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2C5545C31C1124DE00728469 /* Build configuration list for PBXNativeTarget "SwiftRadioUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1022,6 +1356,15 @@
 			buildConfigurations = (
 				CE6A3E4D291F376D0058C82A /* Debug */,
 				CE6A3E4E291F376D0058C82A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DDF9FA9430A38BA7F96A23AF /* Build configuration list for PBXNativeTarget "KPCRRadio Watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3986E70284CBC72575542354 /* Release */,
+				E314D97CDA1A2F2FDDF39102 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

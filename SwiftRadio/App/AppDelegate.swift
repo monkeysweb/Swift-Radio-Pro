@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         audioService.setupFRadioPlayer()
         audioService.setupAudioSession()
         audioService.setupRemoteCommandCenter()
+        KPCRWatchBridge.shared.activate()
         
         return true
     }
