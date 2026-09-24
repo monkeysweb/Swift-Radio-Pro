@@ -1177,7 +1177,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp.complication;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp.widget;
 				PRODUCT_NAME = KPCRWatchComplication;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1301,7 +1301,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp.complication;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.radio.watchkitapp.widget;
 				PRODUCT_NAME = KPCRWatchComplication;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
