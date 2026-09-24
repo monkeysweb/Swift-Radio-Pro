@@ -1,6 +1,8 @@
 import SwiftUI
 import UserNotifications
 
+private let rowColors: [Color] = [.pcYellow, .pcCyan, .pcCoral, .pcPurple, .pcGreen]
+
 struct HomeView: View {
     @EnvironmentObject var appState: AppState
     @State private var showAddFriend = false
@@ -8,66 +10,100 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if let sender = appState.lastReceivedFrom {
-                    Section {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Pirate Cat from \(sender)").font(.headline)
-                                Text("Tap their name below to send it back.").font(.footnote).foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Button("Dismiss") { appState.lastReceivedFrom = nil }
-                                .font(.footnote)
-                        }
-                    }
-                }
+            ZStack {
+                Color.pcCream.ignoresSafeArea()
 
-                if pushDenied {
-                    Section {
-                        Button {
-                            if let url = URL(string: UIApplication.openSettingsURLString) {
-                                UIApplication.shared.open(url)
-                            }
-                        } label: {
-                            Text("Notifications are off — turn them on in Settings to receive Pirate Cats.")
-                                .font(.footnote)
-                        }
-                    }
-                }
-
-                Section {
-                    if appState.friends.isEmpty {
-                        Text("No one added yet. Tap + to find someone by their exact display name.")
-                            .foregroundStyle(.secondary)
-                    }
-                    ForEach(appState.friends) { friend in
-                        Button {
-                            Task { await appState.sendYo(to: friend) }
-                        } label: {
-                            HStack {
-                                Text(friend.displayName)
-                                Spacer()
-                                if appState.sendingFriendIds.contains(friend.id) {
-                                    ProgressView()
-                                } else {
-                                    Image(systemName: "hand.tap")
-                                        .foregroundStyle(.secondary)
+                ScrollView {
+                    VStack(spacing: 16) {
+                        if let sender = appState.lastReceivedFrom {
+                            PCCard(color: .pcYellow) {
+                                HStack(alignment: .top) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("🏴 Pirate Cat from \(sender)")
+                                            .font(.headline.weight(.bold))
+                                            .foregroundStyle(Color.pcInk)
+                                        Text("Tap their name below to send it back.")
+                                            .font(.footnote)
+                                            .foregroundStyle(Color.pcInk.opacity(0.7))
+                                    }
+                                    Spacer()
+                                    Button {
+                                        appState.lastReceivedFrom = nil
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(Color.pcInk.opacity(0.6))
+                                    }
                                 }
                             }
                         }
-                        .disabled(appState.sendingFriendIds.contains(friend.id))
+
+                        if pushDenied {
+                            Button {
+                                if let url = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                PCCard(color: .pcCoral) {
+                                    Text("Notifications are off — tap to turn them on in Settings so you can receive Pirate Cats.")
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundStyle(Color.pcInk)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        if appState.friends.isEmpty {
+                            PCCard(color: .pcCyan) {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("No one added yet")
+                                        .font(.headline.weight(.bold))
+                                        .foregroundStyle(Color.pcInk)
+                                    Text("Tap + to find someone by their exact display name.")
+                                        .font(.footnote)
+                                        .foregroundStyle(Color.pcInk.opacity(0.75))
+                                }
+                            }
+                        } else {
+                            ForEach(Array(appState.friends.enumerated()), id: \.element.id) { index, friend in
+                                Button {
+                                    Task { await appState.sendYo(to: friend) }
+                                } label: {
+                                    PCCard(color: rowColors[index % rowColors.count]) {
+                                        HStack {
+                                            Text(friend.displayName)
+                                                .font(.title3.weight(.bold))
+                                                .foregroundStyle(Color.pcInk)
+                                            Spacer()
+                                            if appState.sendingFriendIds.contains(friend.id) {
+                                                ProgressView().tint(Color.pcInk)
+                                            } else {
+                                                Text("Tap to send")
+                                                    .font(.caption.weight(.bold))
+                                                    .foregroundStyle(Color.pcInk.opacity(0.6))
+                                            }
+                                        }
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(appState.sendingFriendIds.contains(friend.id))
+                            }
+                        }
                     }
+                    .padding(16)
                 }
+                .refreshable { await appState.refreshFriends() }
             }
-            .refreshable { await appState.refreshFriends() }
             .navigationTitle("Pirate Cat")
+            .toolbarBackground(Color.pcCream, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button { showAddFriend = true } label: { Image(systemName: "plus") }
+                    Button { showAddFriend = true } label: {
+                        Image(systemName: "plus.circle.fill").foregroundStyle(Color.pcInk)
+                    }
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Sign out") { appState.signOut() }
+                        .foregroundStyle(Color.pcInk)
                 }
             }
             .sheet(isPresented: $showAddFriend) { AddFriendView() }

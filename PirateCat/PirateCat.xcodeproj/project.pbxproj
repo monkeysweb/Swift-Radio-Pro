@@ -7,113 +7,116 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		07F7D25F7B0C4DA94CB0EEFA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A01FC72F535D3B98230E0F4 /* HomeView.swift */; };
-		115697AFD326D7A009F130F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3313D17CA41CDD176827231 /* Assets.xcassets */; };
-		24FA6D69D3125812B7620689 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807F2589EE2E2053A15185CB /* AuthView.swift */; };
-		2D864F319C8BBBCFDAED674B /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D9E09470BDFE84E4A8681A /* Config.swift */; };
-		6BB32E8612EFBFDE572075A8 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B15F241E06E8514C31A5875 /* KeychainStore.swift */; };
-		756F0D4BFFE7291946174130 /* PirateCatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3470181F1C62C708B9AE5F3C /* PirateCatApp.swift */; };
-		7E0A03089C8389DBCEF9807D /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4599522D7067EE654060AF71 /* APIClient.swift */; };
-		AE939CD0DAC5FAEFEB2BFFBD /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A4E9D192909F0072E43BE7 /* Models.swift */; };
-		AF619F9015A9E4FC754B97CF /* AddFriendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC5EA250A4D3CA51A5F3B08 /* AddFriendView.swift */; };
-		CF7E0DFAF7753DE7526022F3 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBEB55503255A8A1E102BCA3 /* AppState.swift */; };
-		E4F148811C78F9D9BF46AA82 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EC2B239109B70BA12CC7900 /* Foundation.framework */; };
-		E515AE7FF208A0D99FE21FB7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B35715B719C6F8F0E7F2897 /* AppDelegate.swift */; };
+		01EB72736E73020178C4BFE0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D6E4AA4D52A524385078C52 /* AppDelegate.swift */; };
+		2F28ACCB86863EDCCE2481DF /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9568628C27B0B7597B8897ED /* Models.swift */; };
+		6824BEE5FEDC676E2D13B4BE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7313B32D43F483FB181BAC /* Foundation.framework */; };
+		7D33777BAA9542E84C83EE42 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005B848D5108306444727EF8 /* APIClient.swift */; };
+		A0AF493D5991080604C52DB6 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5243795DA859B1B18A6522F /* AuthView.swift */; };
+		A5CEEF22899666A8EF753CAE /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = E773EA3A3FBE0D530CC46DB7 /* Config.swift */; };
+		AA7E32A0DB9A941F08EA1ADA /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F052D1B38EB975065DC4230 /* Theme.swift */; };
+		AF3B29CC08B0A9E7D2C1C57C /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE25446FC8A11AF73B140F99 /* AppState.swift */; };
+		C49784D9C9CA934A72C0710A /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D045F9AC8800DECD702D114 /* KeychainStore.swift */; };
+		D2984D5E9CC493FD2D7CF06B /* AddFriendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38BDC4C8ECA3CA80547E2DD5 /* AddFriendView.swift */; };
+		D8F88499717946D12EFA94E5 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86FD1FD605EFFE78E093F11E /* HomeView.swift */; };
+		E7DEDA1926CFC05C654219A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8B24E57D7F919E23A11CCE7 /* Assets.xcassets */; };
+		EAB87596E52B90F05FB9FF59 /* PirateCatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97250805CDB437EF9F5F0052 /* PirateCatApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		115C24F32989E97DE4D76A99 /* PirateCat.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = PirateCat.entitlements; path = ./PirateCat/PirateCat.entitlements; sourceTree = "<group>"; };
-		2EC2B239109B70BA12CC7900 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		3470181F1C62C708B9AE5F3C /* PirateCatApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PirateCatApp.swift; path = ./PirateCat/PirateCatApp.swift; sourceTree = "<group>"; };
-		3B116C5F91739B1FE7D72543 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = ./PirateCat/Info.plist; sourceTree = "<group>"; };
-		4599522D7067EE654060AF71 /* APIClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = APIClient.swift; path = ./PirateCat/APIClient.swift; sourceTree = "<group>"; };
-		5A01FC72F535D3B98230E0F4 /* HomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeView.swift; path = ./PirateCat/HomeView.swift; sourceTree = "<group>"; };
-		807F2589EE2E2053A15185CB /* AuthView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthView.swift; path = ./PirateCat/AuthView.swift; sourceTree = "<group>"; };
-		8B15F241E06E8514C31A5875 /* KeychainStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainStore.swift; path = ./PirateCat/KeychainStore.swift; sourceTree = "<group>"; };
-		9B35715B719C6F8F0E7F2897 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ./PirateCat/AppDelegate.swift; sourceTree = "<group>"; };
-		ACC5EA250A4D3CA51A5F3B08 /* AddFriendView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddFriendView.swift; path = ./PirateCat/AddFriendView.swift; sourceTree = "<group>"; };
-		B8090B3D6EC40B00E838D2D8 /* PirateCat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PirateCat.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D3313D17CA41CDD176827231 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ./PirateCat/Assets.xcassets; sourceTree = "<group>"; };
-		F6D9E09470BDFE84E4A8681A /* Config.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Config.swift; path = ./PirateCat/Config.swift; sourceTree = "<group>"; };
-		F9A4E9D192909F0072E43BE7 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = ./PirateCat/Models.swift; sourceTree = "<group>"; };
-		FBEB55503255A8A1E102BCA3 /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppState.swift; path = ./PirateCat/AppState.swift; sourceTree = "<group>"; };
+		005B848D5108306444727EF8 /* APIClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = APIClient.swift; path = ./PirateCat/APIClient.swift; sourceTree = "<group>"; };
+		0D045F9AC8800DECD702D114 /* KeychainStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainStore.swift; path = ./PirateCat/KeychainStore.swift; sourceTree = "<group>"; };
+		0D6E4AA4D52A524385078C52 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ./PirateCat/AppDelegate.swift; sourceTree = "<group>"; };
+		38BDC4C8ECA3CA80547E2DD5 /* AddFriendView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddFriendView.swift; path = ./PirateCat/AddFriendView.swift; sourceTree = "<group>"; };
+		4B7313B32D43F483FB181BAC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6A17435A96877AF57C05FB2A /* PirateCat.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = PirateCat.entitlements; path = ./PirateCat/PirateCat.entitlements; sourceTree = "<group>"; };
+		8509ADF412FA2AB9A823ED06 /* PirateCat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PirateCat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		86FD1FD605EFFE78E093F11E /* HomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeView.swift; path = ./PirateCat/HomeView.swift; sourceTree = "<group>"; };
+		9568628C27B0B7597B8897ED /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = ./PirateCat/Models.swift; sourceTree = "<group>"; };
+		97250805CDB437EF9F5F0052 /* PirateCatApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PirateCatApp.swift; path = ./PirateCat/PirateCatApp.swift; sourceTree = "<group>"; };
+		9F052D1B38EB975065DC4230 /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Theme.swift; path = ./PirateCat/Theme.swift; sourceTree = "<group>"; };
+		C5243795DA859B1B18A6522F /* AuthView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthView.swift; path = ./PirateCat/AuthView.swift; sourceTree = "<group>"; };
+		DB15BE7AD78C36C7DBC6DAA2 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = ./PirateCat/Info.plist; sourceTree = "<group>"; };
+		E773EA3A3FBE0D530CC46DB7 /* Config.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Config.swift; path = ./PirateCat/Config.swift; sourceTree = "<group>"; };
+		E8B24E57D7F919E23A11CCE7 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ./PirateCat/Assets.xcassets; sourceTree = "<group>"; };
+		FE25446FC8A11AF73B140F99 /* AppState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppState.swift; path = ./PirateCat/AppState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		6D5DC6D0E8F3BF57075D37B0 /* Frameworks */ = {
+		0D0A432AD5934844374BA31D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4F148811C78F9D9BF46AA82 /* Foundation.framework in Frameworks */,
+				6824BEE5FEDC676E2D13B4BE /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		15FF24E5252EC05FDA3FFD33 /* Products */ = {
+		0A939984CF750FA5BA2ED414 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				B8090B3D6EC40B00E838D2D8 /* PirateCat.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		64BB2FFAD286341DD9E9F7D7 /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				2EC2B239109B70BA12CC7900 /* Foundation.framework */,
+				4B7313B32D43F483FB181BAC /* Foundation.framework */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
 		};
-		A7DEFCD07F130FB86CE71997 = {
+		0E434032EB8E0574FB56B9B0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				15FF24E5252EC05FDA3FFD33 /* Products */,
-				B05D2DFB6E825E94EA39C3AA /* Frameworks */,
-				E9D2ECB90BBF2F4F4ACC2514 /* PirateCat */,
+				8509ADF412FA2AB9A823ED06 /* PirateCat.app */,
 			);
+			name = Products;
 			sourceTree = "<group>";
 		};
-		B05D2DFB6E825E94EA39C3AA /* Frameworks */ = {
+		62D3D16FC8E77121CA7DCB8D /* PirateCat */ = {
 			isa = PBXGroup;
 			children = (
-				64BB2FFAD286341DD9E9F7D7 /* iOS */,
+				005B848D5108306444727EF8 /* APIClient.swift */,
+				38BDC4C8ECA3CA80547E2DD5 /* AddFriendView.swift */,
+				0D6E4AA4D52A524385078C52 /* AppDelegate.swift */,
+				FE25446FC8A11AF73B140F99 /* AppState.swift */,
+				C5243795DA859B1B18A6522F /* AuthView.swift */,
+				E773EA3A3FBE0D530CC46DB7 /* Config.swift */,
+				86FD1FD605EFFE78E093F11E /* HomeView.swift */,
+				0D045F9AC8800DECD702D114 /* KeychainStore.swift */,
+				9568628C27B0B7597B8897ED /* Models.swift */,
+				97250805CDB437EF9F5F0052 /* PirateCatApp.swift */,
+				9F052D1B38EB975065DC4230 /* Theme.swift */,
+				E8B24E57D7F919E23A11CCE7 /* Assets.xcassets */,
+				DB15BE7AD78C36C7DBC6DAA2 /* Info.plist */,
+				6A17435A96877AF57C05FB2A /* PirateCat.entitlements */,
+			);
+			name = PirateCat;
+			sourceTree = "<group>";
+		};
+		E397ABF39BA918AE28B837BF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0A939984CF750FA5BA2ED414 /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		E9D2ECB90BBF2F4F4ACC2514 /* PirateCat */ = {
+		FBE905B3736A17CD44107A09 = {
 			isa = PBXGroup;
 			children = (
-				4599522D7067EE654060AF71 /* APIClient.swift */,
-				ACC5EA250A4D3CA51A5F3B08 /* AddFriendView.swift */,
-				9B35715B719C6F8F0E7F2897 /* AppDelegate.swift */,
-				FBEB55503255A8A1E102BCA3 /* AppState.swift */,
-				807F2589EE2E2053A15185CB /* AuthView.swift */,
-				F6D9E09470BDFE84E4A8681A /* Config.swift */,
-				5A01FC72F535D3B98230E0F4 /* HomeView.swift */,
-				8B15F241E06E8514C31A5875 /* KeychainStore.swift */,
-				F9A4E9D192909F0072E43BE7 /* Models.swift */,
-				3470181F1C62C708B9AE5F3C /* PirateCatApp.swift */,
-				D3313D17CA41CDD176827231 /* Assets.xcassets */,
-				3B116C5F91739B1FE7D72543 /* Info.plist */,
-				115C24F32989E97DE4D76A99 /* PirateCat.entitlements */,
+				0E434032EB8E0574FB56B9B0 /* Products */,
+				E397ABF39BA918AE28B837BF /* Frameworks */,
+				62D3D16FC8E77121CA7DCB8D /* PirateCat */,
 			);
-			name = PirateCat;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		38968C080D87C6CF19229D9C /* PirateCat */ = {
+		056EA091C56E0700FA47BDD3 /* PirateCat */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DFEEEEBE3B8AAFADECC327A9 /* Build configuration list for PBXNativeTarget "PirateCat" */;
+			buildConfigurationList = B2DD1740999D64143CA79C78 /* Build configuration list for PBXNativeTarget "PirateCat" */;
 			buildPhases = (
-				DBB39A9C26E9752616F699C2 /* Sources */,
-				6D5DC6D0E8F3BF57075D37B0 /* Frameworks */,
-				EABB8F4BA1DB82592649D102 /* Resources */,
+				92EC5F66940892C76D8615B7 /* Sources */,
+				0D0A432AD5934844374BA31D /* Frameworks */,
+				733B3021D15B66587E562D68 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -121,19 +124,19 @@
 			);
 			name = PirateCat;
 			productName = PirateCat;
-			productReference = B8090B3D6EC40B00E838D2D8 /* PirateCat.app */;
+			productReference = 8509ADF412FA2AB9A823ED06 /* PirateCat.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		4CA4FD90FCB09016DD93B23D /* Project object */ = {
+		E1B370CE0AE2A7BDDA9ECA8D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 			};
-			buildConfigurationList = 6BE2CE19B7C4D9C1C54CA029 /* Build configuration list for PBXProject "PirateCat" */;
+			buildConfigurationList = 9441E0FE5AA86AB49B27C05C /* Build configuration list for PBXProject "PirateCat" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -141,51 +144,74 @@
 				en,
 				Base,
 			);
-			mainGroup = A7DEFCD07F130FB86CE71997;
+			mainGroup = FBE905B3736A17CD44107A09;
 			minimizedProjectReferenceProxies = 0;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 15FF24E5252EC05FDA3FFD33 /* Products */;
+			productRefGroup = 0E434032EB8E0574FB56B9B0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				38968C080D87C6CF19229D9C /* PirateCat */,
+				056EA091C56E0700FA47BDD3 /* PirateCat */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		EABB8F4BA1DB82592649D102 /* Resources */ = {
+		733B3021D15B66587E562D68 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				115697AFD326D7A009F130F8 /* Assets.xcassets in Resources */,
+				E7DEDA1926CFC05C654219A2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		DBB39A9C26E9752616F699C2 /* Sources */ = {
+		92EC5F66940892C76D8615B7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7E0A03089C8389DBCEF9807D /* APIClient.swift in Sources */,
-				AF619F9015A9E4FC754B97CF /* AddFriendView.swift in Sources */,
-				E515AE7FF208A0D99FE21FB7 /* AppDelegate.swift in Sources */,
-				CF7E0DFAF7753DE7526022F3 /* AppState.swift in Sources */,
-				24FA6D69D3125812B7620689 /* AuthView.swift in Sources */,
-				2D864F319C8BBBCFDAED674B /* Config.swift in Sources */,
-				07F7D25F7B0C4DA94CB0EEFA /* HomeView.swift in Sources */,
-				6BB32E8612EFBFDE572075A8 /* KeychainStore.swift in Sources */,
-				AE939CD0DAC5FAEFEB2BFFBD /* Models.swift in Sources */,
-				756F0D4BFFE7291946174130 /* PirateCatApp.swift in Sources */,
+				7D33777BAA9542E84C83EE42 /* APIClient.swift in Sources */,
+				D2984D5E9CC493FD2D7CF06B /* AddFriendView.swift in Sources */,
+				01EB72736E73020178C4BFE0 /* AppDelegate.swift in Sources */,
+				AF3B29CC08B0A9E7D2C1C57C /* AppState.swift in Sources */,
+				A0AF493D5991080604C52DB6 /* AuthView.swift in Sources */,
+				A5CEEF22899666A8EF753CAE /* Config.swift in Sources */,
+				D8F88499717946D12EFA94E5 /* HomeView.swift in Sources */,
+				C49784D9C9CA934A72C0710A /* KeychainStore.swift in Sources */,
+				2F28ACCB86863EDCCE2481DF /* Models.swift in Sources */,
+				EAB87596E52B90F05FB9FF59 /* PirateCatApp.swift in Sources */,
+				AA7E32A0DB9A941F08EA1ADA /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		5242C9E7C0824B5A7496E1E8 /* Release */ = {
+		0013E0B75A3EB1C5256A7077 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = PirateCat/PirateCat.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PirateCat/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.piratecat;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		07E873278969CED99B2438B8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -239,52 +265,7 @@
 			};
 			name = Release;
 		};
-		8164E4335175FD1D20B16753 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = PirateCat/PirateCat.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = PirateCat/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.piratecat;
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		D04F7EB6D58B2529FBC01063 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = PirateCat/PirateCat.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = PirateCat/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.piratecat;
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		F4181F6BA5E956BF57C94447 /* Debug */ = {
+		67899B43A505F2E879BA8513 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -345,28 +326,51 @@
 			};
 			name = Debug;
 		};
+		69D782DA6902EEE7612D651E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = PirateCat/PirateCat.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PirateCat/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.kpcr.piratecat;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		6BE2CE19B7C4D9C1C54CA029 /* Build configuration list for PBXProject "PirateCat" */ = {
+		9441E0FE5AA86AB49B27C05C /* Build configuration list for PBXProject "PirateCat" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F4181F6BA5E956BF57C94447 /* Debug */,
-				5242C9E7C0824B5A7496E1E8 /* Release */,
+				67899B43A505F2E879BA8513 /* Debug */,
+				07E873278969CED99B2438B8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DFEEEEBE3B8AAFADECC327A9 /* Build configuration list for PBXNativeTarget "PirateCat" */ = {
+		B2DD1740999D64143CA79C78 /* Build configuration list for PBXNativeTarget "PirateCat" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D04F7EB6D58B2529FBC01063 /* Release */,
-				8164E4335175FD1D20B16753 /* Debug */,
+				69D782DA6902EEE7612D651E /* Release */,
+				0013E0B75A3EB1C5256A7077 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 4CA4FD90FCB09016DD93B23D /* Project object */;
+	rootObject = E1B370CE0AE2A7BDDA9ECA8D /* Project object */;
 }
