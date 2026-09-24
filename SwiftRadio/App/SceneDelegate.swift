@@ -288,6 +288,7 @@ private struct KPCRShow: Codable {
     let time: String
     let description: String?
     let podcastRss: String?
+    var favoriteCount: Int? = nil
 }
 
 private struct KPCRTrack: Codable {
@@ -2066,11 +2067,21 @@ private final class KPCRShowCardView: KPCRShadowCard {
         time.lineBreakMode = .byTruncatingTail
         let share = showCardIcon("square.and.arrow.up")
         let heart = showCardIcon(KPCRFavoritesStore.shared.isFavorite(show: show) ? "heart.fill" : "heart")
-        let count = label("\(Self.favoriteCount(for: show))", 13, .medium, UIColor.black.withAlphaComponent(0.7))
+        // Real number of listeners who hearted this show, from the schedule feed.
+        var hearts = show.favoriteCount ?? 0
+        let count = label("\(hearts)", 13, .medium, UIColor.black.withAlphaComponent(0.7))
+        count.isHidden = hearts == 0
         heart.addAction(UIAction { _ in
             Task { @MainActor in
+                let wasFavorite = KPCRFavoritesStore.shared.isFavorite(show: show)
                 await KPCRFavoritesStore.shared.toggle(show: show)
-                heart.setImage(UIImage(systemName: KPCRFavoritesStore.shared.isFavorite(show: show) ? "heart.fill" : "heart", withConfiguration: UIImage.SymbolConfiguration(pointSize: 29, weight: .medium)), for: .normal)
+                let isFavorite = KPCRFavoritesStore.shared.isFavorite(show: show)
+                if isFavorite != wasFavorite {
+                    hearts = max(0, hearts + (isFavorite ? 1 : -1))
+                    count.text = "\(hearts)"
+                    count.isHidden = hearts == 0
+                }
+                heart.setImage(UIImage(systemName: isFavorite ? "heart.fill" : "heart", withConfiguration: UIImage.SymbolConfiguration(pointSize: 29, weight: .medium)), for: .normal)
             }
         }, for: .touchUpInside)
         let actions = UIStackView(arrangedSubviews: [share, heart, count])
@@ -2129,10 +2140,6 @@ private final class KPCRShowCardView: KPCRShadowCard {
         value.replacingOccurrences(of: ":00", with: "").replacingOccurrences(of: "  ", with: " ")
     }
 
-    private static func favoriteCount(for show: KPCRShow) -> Int {
-        let source = show.slug ?? show.title
-        return abs(source.unicodeScalars.reduce(0) { ($0 &* 31) &+ Int($1.value) }) % 84 + 8
-    }
 }
 
 private final class KPCRTrackCarouselView: UIScrollView {
