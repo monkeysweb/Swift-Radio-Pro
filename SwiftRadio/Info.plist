@@ -23,9 +23,9 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GoogleClientID</key>
-	<string>782479503013-c9v0t74vnf8uu4gg6invnc70rp6h8n9o.apps.googleusercontent.com</string>
+	<string>264998124578-d5v7ofesot4r7m3ppudboth819hrapc5.apps.googleusercontent.com</string>
 	<key>GoogleURLScheme</key>
-	<string>com.googleusercontent.apps.782479503013-c9v0t74vnf8uu4gg6invnc70rp6h8n9o</string>
+	<string>com.googleusercontent.apps.264998124578-d5v7ofesot4r7m3ppudboth819hrapc5</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
