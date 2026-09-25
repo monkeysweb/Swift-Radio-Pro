@@ -27,7 +27,7 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
         self.interfaceController = interfaceController
         
         // Create a simple list template
-        let listTemplate = CPListTemplate(title: "Radio Stations", sections: [])
+        let listTemplate = CPListTemplate(title: "Pirate Cat Radio", sections: [])
         
         // Set as root template immediately
         interfaceController
@@ -60,10 +60,10 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
             }
             
             // Handle selection
-            item.handler = { _, completion in
-                print("Selected station: \(station.name)")
+            item.handler = { [weak self] _, completion in
                 StationsManager.shared.set(station: station)
                 FRadioPlayer.shared.play()
+                self?.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
                 completion()
             }
             
