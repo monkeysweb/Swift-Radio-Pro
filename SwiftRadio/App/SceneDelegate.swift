@@ -1,6 +1,7 @@
 
 
 import UIKit
+import UserNotifications
 import SafariServices
 import FRadioPlayer
 import CoreImage
@@ -22,6 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // Start the coordinator
         setupCoordinator(windowScene: windowScene)
+        KPCRPush.start()
     }
     
     private func setupUIAppearance() {
@@ -85,6 +87,68 @@ private enum KPCRStyle {
     }
 }
 
+/// "Your show is live" alerts: asks permission when a listener first hearts a
+/// show, keeps this phone's push token registered with kpcr.org while signed
+/// in, and starts the live stream when an alert is tapped.
+private enum KPCRPush {
+    private static var observers: [NSObjectProtocol] = []
+
+    static var environment: String {
+        #if DEBUG
+        return "sandbox"
+        #else
+        return "production"
+        #endif
+    }
+
+    static func start() {
+        guard observers.isEmpty else { return }
+        observers.append(NotificationCenter.default.addObserver(forName: AppDelegate.pushTokenDidChange, object: nil, queue: .main) { _ in
+            uploadStoredToken()
+        })
+        observers.append(NotificationCenter.default.addObserver(forName: AppDelegate.playLiveRequested, object: nil, queue: .main) { _ in
+            playLive()
+        })
+        uploadStoredToken()
+    }
+
+    static func requestPermissionIfNeeded() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            switch settings.authorizationStatus {
+            case .notDetermined:
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+                    guard granted else { return }
+                    DispatchQueue.main.async { UIApplication.shared.registerForRemoteNotifications() }
+                }
+            case .authorized, .provisional, .ephemeral:
+                DispatchQueue.main.async { UIApplication.shared.registerForRemoteNotifications() }
+            default:
+                break
+            }
+        }
+    }
+
+    static func uploadStoredToken() {
+        guard KPCRSession.isLoggedIn, let token = UserDefaults.standard.string(forKey: AppDelegate.pushTokenKey) else { return }
+        Task { try? await KPCRAPI.registerPushDevice(token: token, environment: environment) }
+    }
+
+    static func removeDevice(authToken: String) {
+        guard let token = UserDefaults.standard.string(forKey: AppDelegate.pushTokenKey) else { return }
+        Task { await KPCRAPI.removePushDevice(token: token, authToken: authToken) }
+    }
+
+    private static func playLive() {
+        let player = FRadioPlayer.shared
+        let stations = StationsManager.shared
+        if stations.currentStation == nil { stations.set(station: stations.stations.first) }
+        if let live = stations.currentStation.flatMap({ URL(string: $0.streamURL) }), player.radioURL != live {
+            player.radioURL = live
+        }
+        if !player.isPlaying { player.play() }
+    }
+}
+
 private enum KPCRSession {
     static let didChange = Notification.Name("kpcrSessionChanged")
     private static let tokenKey = "kpcr.mobile.token"
@@ -122,10 +186,13 @@ private enum KPCRSession {
             UserDefaults.standard.set(Int.random(in: 0..<KPCRAvatarAssets.count), forKey: avatarIndexKey)
         }
         Task { @MainActor in await KPCRFavoritesStore.shared.load() }
+        KPCRPush.uploadStoredToken()
         NotificationCenter.default.post(name: didChange, object: nil)
     }
 
     static func signOut() {
+        // Stop "show is live" alerts for this account on this phone.
+        if let authToken = token { KPCRPush.removeDevice(authToken: authToken) }
         UserDefaults.standard.removeObject(forKey: tokenKey)
         UserDefaults.standard.removeObject(forKey: userKey)
         Task { @MainActor in KPCRFavoritesStore.shared.clear() }
@@ -443,6 +510,7 @@ private final class KPCRFavoritesStore {
                 let payload = try await KPCRAPI.saveFavorite(type: "show", item: show)
                 shows = payload.shows
                 tracks = payload.tracks
+                KPCRPush.requestPermissionIfNeeded()
             }
             notify()
         } catch {
@@ -795,6 +863,21 @@ private enum KPCRAPI {
             "type": type,
             "item": jsonObject(item),
         ])
+    }
+
+    static func registerPushDevice(token: String, environment: String) async throws {
+        let _: KPCRGenericOKResponse = try await authenticated(path: "/api/mobile/push", method: "POST", body: ["token": token, "environment": environment])
+    }
+
+    /// Takes the auth token explicitly because it runs while the session is being cleared.
+    static func removePushDevice(token: String, authToken: String) async {
+        guard let url = URL(string: base + "/api/mobile/push") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["token": token])
+        _ = try? await URLSession.shared.data(for: request)
     }
 
     static func removeFavorite(type: String, key: String) async throws -> Bool {
