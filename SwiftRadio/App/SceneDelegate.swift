@@ -264,6 +264,15 @@ private struct KPCRFavoriteDeleteResponse: Codable {
     let removed: Bool
 }
 
+private struct KPCRMembershipLinkChallenge: Codable {
+    let challenge: String
+    let expiresAt: Double
+}
+
+private struct KPCRMembershipLinkResult: Codable {
+    let ok: Bool
+}
+
 private struct KPCRGenericOKResponse: Codable {
     let ok: Bool
 }
@@ -324,6 +333,13 @@ private enum KPCRAPIError: LocalizedError {
             case "type_delete_to_confirm": return "Type DELETE to confirm deleting your account."
             case "valid_password_required": return "Passwords need at least 8 characters."
             case "rate_limited": return "Too many tries. Please wait a bit and try again."
+            case "valid_email_required": return "Enter a valid email address."
+            case "same_email_as_account": return "That's already this account's email. Enter the email you used to join Signal Society."
+            case "email_not_sent": return "We couldn't send the code. Please try again in a minute."
+            case "code_expired": return "That code expired. Start again to get a new one."
+            case "invalid_code": return "That code isn't right. Check the email and try again."
+            case "no_membership_for_email": return "We couldn't find a Signal Society membership for that email."
+            case "membership_linked_to_other_account": return "That membership is already linked to another app account."
             default: return message
             }
         }
@@ -878,6 +894,17 @@ private enum KPCRAPI {
         request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["token": token])
         _ = try? await URLSession.shared.data(for: request)
+    }
+
+    static func startMembershipLink(email: String) async throws -> KPCRMembershipLinkChallenge {
+        try await authenticated(path: "/api/mobile/membership/link", method: "POST", body: ["action": "start", "email": email])
+    }
+
+    static func verifyMembershipLink(email: String, code: String, challenge: KPCRMembershipLinkChallenge) async throws {
+        let _: KPCRMembershipLinkResult = try await authenticated(path: "/api/mobile/membership/link", method: "POST", body: [
+            "action": "verify", "email": email, "code": code,
+            "challenge": challenge.challenge, "expiresAt": String(format: "%.0f", challenge.expiresAt),
+        ])
     }
 
     static func removeFavorite(type: String, key: String) async throws -> Bool {
@@ -1850,7 +1877,8 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
                     payload: membershipPayload,
                     isLoading: isLoadingMembership,
                     errorMessage: membershipError,
-                    onOpen: { [weak self] url in self?.open(url) }
+                    onOpen: { [weak self] url in self?.open(url) },
+                    onLinkMembership: { [weak self] in self?.startMembershipLink() }
                 ))
             }
         } else {
@@ -1866,6 +1894,60 @@ private final class KPCRMyPCRViewController: KPCRBaseViewController {
                 onOpen: { [weak self] url in self?.open(url) }
             ))
         }
+    }
+
+    private func startMembershipLink() {
+        let alert = UIAlertController(title: "Link your membership", message: "Enter the email you used to join Signal Society. We'll send it a 6-digit code.", preferredStyle: .alert)
+        alert.addTextField { field in
+            field.placeholder = "Membership email"
+            field.keyboardType = .emailAddress
+            field.textContentType = .emailAddress
+            field.autocapitalizationType = .none
+            field.autocorrectionType = .no
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Send code", style: .default) { [weak self, weak alert] _ in
+            let email = alert?.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            Task { @MainActor [weak self] in
+                do {
+                    let challenge = try await KPCRAPI.startMembershipLink(email: email)
+                    self?.askForMembershipCode(email: email, challenge: challenge)
+                } catch {
+                    self?.showMembershipLinkError(error)
+                }
+            }
+        })
+        present(alert, animated: true)
+    }
+
+    private func askForMembershipCode(email: String, challenge: KPCRMembershipLinkChallenge) {
+        let alert = UIAlertController(title: "Check your email", message: "We sent a 6-digit code to \(email). It expires in 15 minutes.", preferredStyle: .alert)
+        alert.addTextField { field in
+            field.placeholder = "6-digit code"
+            field.keyboardType = .numberPad
+            field.textContentType = .oneTimeCode
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Link", style: .default) { [weak self, weak alert] _ in
+            let code = alert?.textFields?.first?.text ?? ""
+            Task { @MainActor [weak self] in
+                do {
+                    try await KPCRAPI.verifyMembershipLink(email: email, code: code, challenge: challenge)
+                    self?.membershipPayload = nil
+                    self?.membershipError = nil
+                    self?.loadMembership(force: true)
+                } catch {
+                    self?.showMembershipLinkError(error)
+                }
+            }
+        })
+        present(alert, animated: true)
+    }
+
+    private func showMembershipLinkError(_ error: Error) {
+        let alert = UIAlertController(title: "Couldn't link membership", message: error.localizedDescription, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func loadMembership(force: Bool = false) {
@@ -2920,8 +3002,12 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
     private let cardUrl: String?
     private let walletUrl: String?
     private let onOpen: ((String) -> Void)?
+    private let onLinkMembership: (() -> Void)?
 
-    init(payload: KPCRMembershipPayload?, isLoading: Bool, errorMessage: String? = nil, onOpen: ((String) -> Void)? = nil) {
+    static let joinURL = URL(string: "https://kpcr.org/join")!
+
+    init(payload: KPCRMembershipPayload?, isLoading: Bool, errorMessage: String? = nil, onOpen: ((String) -> Void)? = nil, onLinkMembership: (() -> Void)? = nil) {
+        self.onLinkMembership = onLinkMembership
         self.checkoutUrl = payload?.checkoutUrl
         self.cardUrl = payload?.membership.cardUrl
         self.walletUrl = payload?.membership.walletUrl
@@ -2960,10 +3046,18 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
                     stack.addArrangedSubview(actionRow(primaryTitle: "Sign up or renew", secondaryTitle: nil))
                 }
             }
+        } else if KPCRSession.isLoggedIn, let errorMessage, !errorMessage.hasPrefix("No Signal Society membership was found") {
+            stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Couldn't check membership", isActive: false))
+            stack.addArrangedSubview(body(errorMessage))
         } else if KPCRSession.isLoggedIn {
-            stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Account not matched", isActive: false))
-            let email = KPCRSession.currentUser?.email ?? "this account"
-            stack.addArrangedSubview(body(errorMessage ?? "No Signal Society membership was found for \(email). Sign in with the email on your Join It membership."))
+            // No membership matches this app account's email.
+            stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Not a member yet", isActive: false))
+            stack.addArrangedSubview(body("Become a member to support independent radio and get your digital member card, double giveaway entries and more."))
+            stack.addArrangedSubview(actionButton(title: "Become a member", color: KPCRStyle.red, action: #selector(becomeMemberTapped)))
+            let linkNote = body("Already a member? If you joined with a different email than this app account, link your membership.")
+            linkNote.font = KPCRStyle.rounded(15, weight: .medium)
+            stack.addArrangedSubview(linkNote)
+            stack.addArrangedSubview(actionButton(title: "Link my membership", color: KPCRStyle.ink, action: #selector(linkMembershipTapped)))
         } else {
             stack.addArrangedSubview(header(title: "Signal Society", subtitle: "Sign in required", isActive: false))
             stack.addArrangedSubview(body("Sign in to check your Signal Society membership, view your member card, and unlock member perks."))
@@ -3114,6 +3208,14 @@ private final class KPCRSignalSocietyCard: KPCRShadowCard {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "MMM d, yyyy"
         return formatter.string(from: date)
+    }
+
+    @objc private func becomeMemberTapped() {
+        UIApplication.shared.open(Self.joinURL)
+    }
+
+    @objc private func linkMembershipTapped() {
+        onLinkMembership?()
     }
 
     // Membership is sold on the web, so checkout leaves the app for Safari.
