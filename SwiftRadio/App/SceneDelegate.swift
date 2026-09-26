@@ -381,6 +381,21 @@ private struct KPCRTrack: Codable {
     let airedAt: String
 }
 
+// Match the website's news-break classification for both ICY and history metadata.
+private enum KPCRNewsMetadata {
+    static func isNewsBreak(_ value: String) -> Bool {
+        let text = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return text == "News Break"
+            || text.range(of: #"podtrac|simplecast|byspotify|npr[-_.]|\.com[_/]|https?://"#, options: .regularExpression.union(.caseInsensitive)) != nil
+            || (text.count > 40 && text.rangeOfCharacter(from: .whitespacesAndNewlines) == nil)
+    }
+
+    static func normalize(_ track: KPCRTrack) -> KPCRTrack {
+        guard isNewsBreak(track.title) || isNewsBreak(track.artist) else { return track }
+        return KPCRTrack(title: "News Break", artist: "Pirate Cat Radio", imageUrl: nil, airedAt: track.airedAt)
+    }
+}
+
 private struct KPCRGiveaway: Codable {
     let slug: String?
     let title: String
@@ -599,8 +614,13 @@ private final class KPCRNowPlayingCenter: NSObject {
         // (app launch, after stop, buffering gaps), and that should never blank
         // out a good title/artist already set from the schedule or recent-tracks
         // poll. "Currently playing" must reflect the station, not local playback.
-        guard let title = clean(player.currentMetadata?.trackName),
-              let artist = clean(player.currentMetadata?.artistName) else { return }
+        let rawTitle = clean(player.currentMetadata?.trackName) ?? ""
+        let rawArtist = clean(player.currentMetadata?.artistName) ?? ""
+        guard !rawTitle.isEmpty || !rawArtist.isEmpty else { return }
+        let track = KPCRNewsMetadata.normalize(KPCRTrack(title: rawTitle, artist: rawArtist, imageUrl: nil, airedAt: ""))
+        let title = track.title
+        let artist = track.artist
+        guard !title.isEmpty, !artist.isEmpty else { return }
         guard title != currentTitle || artist != currentArtist else { return }
         currentTitle = title
         currentArtist = artist
@@ -680,7 +700,7 @@ private final class KPCRNowPlayingCenter: NSObject {
 
     func setRecentTracks(_ tracks: [KPCRTrack]) async {
         guard !tracks.isEmpty else { return }
-        recentTracks = Array(tracks.prefix(10))
+        recentTracks = tracks.prefix(10).map { KPCRNewsMetadata.normalize($0) }
         if let current = recentTracks.first {
             currentTitle = current.title
             currentArtist = current.artist
@@ -695,6 +715,7 @@ private final class KPCRNowPlayingCenter: NSObject {
     }
 
     private func scheduleArtworkFetch(title: String, artist: String) {
+        guard !KPCRNewsMetadata.isNewsBreak(title), !KPCRNewsMetadata.isNewsBreak(artist) else { return }
         let key = cacheKey(title: title, artist: artist)
         guard artworkCache[key] == nil, artworkTasks[key] == nil else { return }
         refreshTask?.cancel()
