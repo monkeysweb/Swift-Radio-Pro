@@ -25,6 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Start the coordinator
         setupCoordinator(windowScene: windowScene)
         KPCRPush.start()
+        KPCRListeningSurvey.noteLaunch()
         KPCRReviewPrompt.noteLaunch(in: windowScene)
     }
     
@@ -69,6 +70,8 @@ private enum KPCRReviewPrompt {
     private static let requestedVersionKey = "kpcr.review.requestedVersion"
     private static let minimumLaunches = 5
     private static let minimumAge: TimeInterval = 7 * 24 * 60 * 60
+    /// Lets other prompts (the listening survey) stay out of the way this session.
+    private(set) static var requestedThisSession = false
 
     static func noteLaunch(in scene: UIWindowScene) {
         let defaults = UserDefaults.standard
@@ -93,6 +96,7 @@ private enum KPCRReviewPrompt {
         // Record the request before dispatching so repeated scene callbacks can
         // never queue more than one prompt for the same released app version.
         defaults.set(version, forKey: requestedVersionKey)
+        requestedThisSession = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak scene] in
             guard let scene, scene.activationState == .foregroundActive else { return }
             SKStoreReviewController.requestReview(in: scene)
@@ -189,6 +193,143 @@ private enum KPCRPush {
             player.radioURL = live
         }
         if !player.isPlaying { player.play() }
+    }
+}
+
+/// "How do you listen?" — the same anonymous survey as kpcr.org/survey
+/// (src/lib/listening-survey.mjs; keep the values in sync). Asked once, only
+/// of signed-in listeners, from their third launch (after their second visit)
+/// once the app has been open for a little while. "Not now" asks one more time
+/// two weeks later; the drawer row lets anyone answer whenever they like.
+private enum KPCRListeningSurvey {
+    static let methods: [(value: String, label: String)] = [
+        ("fm_kpcr", "92.9 FM (KPCR, Los Gatos)"),
+        ("fm_kmrt", "101.9 FM (KMRT, Santa Cruz)"),
+        ("fm_kvbe", "91.1 FM (KVBE)"),
+        ("fm_unsure", "FM radio (not sure which)"),
+        ("stream_web", "Online stream (website)"),
+        ("app", "This KPCR app"),
+        ("smart_speaker", "Smart speaker"),
+        ("other", "Other"),
+    ]
+    static let hours: [(value: String, label: String)] = [
+        ("lt1", "Less than 1 hour"),
+        ("1to3", "1–3 hours"),
+        ("3to6", "3–6 hours"),
+        ("6to10", "6–10 hours"),
+        ("10plus", "More than 10 hours"),
+    ]
+
+    private static let launchCountKey = "kpcr.listeningSurvey.launchCount"
+    private static let doneKey = "kpcr.listeningSurvey.done"
+    private static let snoozedUntilKey = "kpcr.listeningSurvey.snoozedUntil"
+    private static let snoozeCountKey = "kpcr.listeningSurvey.snoozeCount"
+    private static let promptAfterLaunches = 3
+    private static let promptDelay: TimeInterval = 20
+    private static let snoozeInterval: TimeInterval = 14 * 24 * 60 * 60
+    private static var scheduledThisSession = false
+
+    static func noteLaunch() {
+        let defaults = UserDefaults.standard
+        defaults.set(defaults.integer(forKey: launchCountKey) + 1, forKey: launchCountKey)
+    }
+
+    private static var isDue: Bool {
+        let defaults = UserDefaults.standard
+        // Never stack on Apple's review sheet; ask on a later launch instead.
+        guard KPCRSession.isLoggedIn, !KPCRReviewPrompt.requestedThisSession, !defaults.bool(forKey: doneKey),
+              defaults.integer(forKey: launchCountKey) >= promptAfterLaunches else { return false }
+        let snoozedUntil = defaults.double(forKey: snoozedUntilKey)
+        return snoozedUntil == 0 || Date().timeIntervalSince1970 >= snoozedUntil
+    }
+
+    /// Called once the main screen is up. Waits so the prompt never lands on
+    /// top of the listener's first taps, and skips it if something else is
+    /// already on screen by then.
+    static func promptIfDue(from controller: UIViewController) {
+        guard !scheduledThisSession, isDue else { return }
+        scheduledThisSession = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + promptDelay) { [weak controller] in
+            guard let controller, isDue, controller.presentedViewController == nil,
+                  controller.view.window != nil, UIApplication.shared.applicationState == .active else { return }
+            present(from: controller, asOneTimePrompt: true)
+        }
+    }
+
+    static func present(from controller: UIViewController, asOneTimePrompt: Bool) {
+        let sheet = UIAlertController(
+            title: "How do you usually listen to KPCR?",
+            message: "Anonymous, one tap. Radios can't tell us they're tuned in, so this helps us know how many people listen on FM.",
+            preferredStyle: .actionSheet
+        )
+        for method in methods {
+            sheet.addAction(UIAlertAction(title: method.label, style: .default) { _ in
+                askHours(from: controller, method: method.value)
+            })
+        }
+        if asOneTimePrompt {
+            sheet.addAction(UIAlertAction(title: "Don't ask again", style: .default) { _ in
+                UserDefaults.standard.set(true, forKey: doneKey)
+            })
+            // iOS 26 hides .cancel actions in action sheets, so the ways out
+            // are ordinary buttons the listener can actually see.
+            sheet.addAction(UIAlertAction(title: "Not now", style: .default) { _ in snooze() })
+        } else {
+            sheet.addAction(UIAlertAction(title: "Cancel", style: .default))
+        }
+        show(sheet, from: controller)
+    }
+
+    private static func askHours(from controller: UIViewController, method: String) {
+        let sheet = UIAlertController(title: "About how many hours a week do you listen?", message: nil, preferredStyle: .actionSheet)
+        for option in hours {
+            sheet.addAction(UIAlertAction(title: option.label, style: .default) { _ in
+                submit(from: controller, method: method, hours: option.value)
+            })
+        }
+        sheet.addAction(UIAlertAction(title: "Skip", style: .default) { _ in
+            submit(from: controller, method: method, hours: nil)
+        })
+        show(sheet, from: controller)
+    }
+
+    private static func submit(from controller: UIViewController, method: String, hours: String?) {
+        Task { @MainActor in
+            let sent = await KPCRAPI.submitListeningSurvey(method: method, hours: hours)
+            if sent {
+                UserDefaults.standard.set(true, forKey: doneKey)
+            } else {
+                snooze()
+            }
+            let alert = UIAlertController(
+                title: sent ? "Thanks for telling us!" : "Couldn't send that",
+                message: sent ? nil : "Please try again later from the menu.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            controller.present(alert, animated: true)
+        }
+    }
+
+    /// The first "Not now" asks again in two weeks; after that, never again.
+    private static func snooze() {
+        let defaults = UserDefaults.standard
+        let count = defaults.integer(forKey: snoozeCountKey) + 1
+        defaults.set(count, forKey: snoozeCountKey)
+        if count >= 2 {
+            defaults.set(true, forKey: doneKey)
+        } else {
+            defaults.set(Date().timeIntervalSince1970 + snoozeInterval, forKey: snoozedUntilKey)
+        }
+    }
+
+    private static func show(_ sheet: UIAlertController, from controller: UIViewController) {
+        if UIDevice.current.userInterfaceIdiom == .pad, let popover = sheet.popoverPresentationController {
+            popover.sourceView = controller.view
+            popover.sourceRect = CGRect(x: controller.view.bounds.midX, y: controller.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        controller.present(sheet, animated: true)
     }
 }
 
@@ -1002,6 +1143,19 @@ private enum KPCRAPI {
         try await authenticated(path: "/api/mobile/membership", method: "GET", body: Optional<[String: String]>.none)
     }
 
+    /// Anonymous, so it uses the public survey endpoint rather than the
+    /// signed-in /api/mobile routes.
+    static func submitListeningSurvey(method: String, hours: String?) async -> Bool {
+        var body = ["listeningMethod": method, "source": "app"]
+        if let hours { body["listeningHours"] = hours }
+        do {
+            let _: KPCRGenericOKResponse = try await jsonRequest(path: "/api/listening-survey", method: "POST", body: body)
+            return true
+        } catch {
+            return false
+        }
+    }
+
     static func fetchPodcast(feedUrl: String) async -> KPCRPodcastPayload {
         let encoded = feedUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? feedUrl
         return await fetch("/api/podcast?url=\(encoded)") ?? KPCRPodcastPayload(episodes: [])
@@ -1158,6 +1312,11 @@ private final class KPCRTabBarController: UITabBarController {
         configureAudio()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        KPCRListeningSurvey.promptIfDue(from: self)
+    }
+
     private func configureTabs() {
         let home = KPCRHomeViewController()
         let schedule = KPCRScheduleViewController()
@@ -1295,6 +1454,12 @@ private class KPCRBaseViewController: UIViewController {
             self?.dismiss(animated: true) {
                 let vc = UIActivityViewController(activityItems: ["Listen live to KPCR: https://kpcr.org"], applicationActivities: nil)
                 self?.present(vc, animated: true)
+            }
+        }
+        drawer.listeningSurvey = { [weak self] in
+            self?.dismiss(animated: true) {
+                guard let self else { return }
+                KPCRListeningSurvey.present(from: self, asOneTimePrompt: false)
             }
         }
         present(drawer, animated: false)
@@ -3374,6 +3539,7 @@ private final class KPCRSquareImageView: UIImageView {
 private final class KPCRDrawerViewController: UIViewController {
     var openURL: ((String) -> Void)?
     var shareApp: (() -> Void)?
+    var listeningSurvey: (() -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -3392,6 +3558,7 @@ private final class KPCRDrawerViewController: UIViewController {
         addHeader("Support Us", to: stack)
         addRow("calendar", "Events", to: stack) { [weak self] in self?.openURL?("https://kpcr.org/events") }
         addRow("heart.fill", "Donate", to: stack) { [weak self] in self?.openURL?("https://kpcr.org/donate") }
+        addRow("antenna.radiowaves.left.and.right", "How Do You Listen?", to: stack) { [weak self] in self?.listeningSurvey?() }
         addHeader("Social", to: stack)
         addRow("square.and.arrow.up", "Share App", to: stack) { [weak self] in self?.shareApp?() }
         addRow("f.circle.fill", "Facebook", to: stack) { [weak self] in self?.openURL?("https://www.facebook.com/kpcrfm") }
