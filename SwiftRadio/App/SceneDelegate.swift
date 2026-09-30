@@ -7,6 +7,7 @@ import FRadioPlayer
 import CoreImage
 import AuthenticationServices
 import CryptoKit
+import StoreKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
@@ -24,6 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Start the coordinator
         setupCoordinator(windowScene: windowScene)
         KPCRPush.start()
+        KPCRReviewPrompt.noteLaunch(in: windowScene)
     }
     
     private func setupUIAppearance() {
@@ -54,6 +56,47 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func sceneDidEnterBackground(_ scene: UIScene) {
         audioService.activateAudioSession()
+    }
+}
+
+/// Asks established listeners for an honest App Store rating using Apple's
+/// native review sheet. New installs are left alone: a listener must have had
+/// the app for at least a week and opened it at least five times. Apple still
+/// decides whether the sheet is displayed and limits how often it can appear.
+private enum KPCRReviewPrompt {
+    private static let firstLaunchKey = "kpcr.review.firstLaunch"
+    private static let launchCountKey = "kpcr.review.launchCount"
+    private static let requestedVersionKey = "kpcr.review.requestedVersion"
+    private static let minimumLaunches = 5
+    private static let minimumAge: TimeInterval = 7 * 24 * 60 * 60
+
+    static func noteLaunch(in scene: UIWindowScene) {
+        let defaults = UserDefaults.standard
+        let now = Date()
+        let firstLaunch: Date
+
+        if let stored = defaults.object(forKey: firstLaunchKey) as? Date {
+            firstLaunch = stored
+        } else {
+            defaults.set(now, forKey: firstLaunchKey)
+            firstLaunch = now
+        }
+
+        let launches = defaults.integer(forKey: launchCountKey) + 1
+        defaults.set(launches, forKey: launchCountKey)
+
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        guard launches >= minimumLaunches,
+              now.timeIntervalSince(firstLaunch) >= minimumAge,
+              defaults.string(forKey: requestedVersionKey) != version else { return }
+
+        // Record the request before dispatching so repeated scene callbacks can
+        // never queue more than one prompt for the same released app version.
+        defaults.set(version, forKey: requestedVersionKey)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak scene] in
+            guard let scene, scene.activationState == .foregroundActive else { return }
+            SKStoreReviewController.requestReview(in: scene)
+        }
     }
 }
 
