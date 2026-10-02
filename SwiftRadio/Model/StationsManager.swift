@@ -149,6 +149,14 @@ extension StationsManager {
             return
         }
         
+        if KPCRPledgePromo.isPledge(artist: FRadioPlayer.shared.currentMetadata?.artistName) {
+            Task { [weak self] in
+                let image = await NetworkService.fetchImage(from: KPCRPledgePromo.artURL)
+                await MainActor.run { self?.updateLockScreen(with: image) }
+            }
+            return
+        }
+
         station.getImage { [weak self] image in
             self?.updateLockScreen(with: image)
         }
@@ -170,7 +178,7 @@ extension StationsManager {
         }
         
         if let trackName = currentStation?.trackName {
-            nowPlayingInfo[MPMediaItemPropertyTitle] = trackName
+            nowPlayingInfo[MPMediaItemPropertyTitle] = KPCRPledgePromo.isPledge(artist: currentStation?.artistName) ? KPCRPledgePromo.title : trackName
         }
         
         let isLive = player.duration == 0

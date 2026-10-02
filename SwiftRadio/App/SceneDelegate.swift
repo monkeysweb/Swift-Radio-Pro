@@ -563,6 +563,7 @@ private struct KPCRTrack: Codable {
     let artist: String
     let imageUrl: String?
     let airedAt: String
+    var kind: String? = nil
 }
 
 // Match the website's news-break classification for both ICY and history metadata.
@@ -575,6 +576,9 @@ private enum KPCRNewsMetadata {
     }
 
     static func normalize(_ track: KPCRTrack) -> KPCRTrack {
+        if KPCRPledgePromo.isPledge(artist: track.artist) {
+            return KPCRTrack(title: KPCRPledgePromo.title, artist: track.artist, imageUrl: KPCRPledgePromo.artURL.absoluteString, airedAt: track.airedAt, kind: "pledge")
+        }
         guard isNewsBreak(track.title) || isNewsBreak(track.artist) else { return track }
         return KPCRTrack(title: "News Break", artist: "Pirate Cat Radio", imageUrl: nil, airedAt: track.airedAt)
     }
@@ -809,8 +813,12 @@ private final class KPCRNowPlayingCenter: NSObject {
         currentTitle = title
         currentArtist = artist
         currentArtwork = artwork(for: title, artist: artist)
-        addRecent(title: title, artist: artist)
-        scheduleArtworkFetch(title: title, artist: artist)
+        addRecent(title: title, artist: artist, imageUrl: track.imageUrl)
+        if track.kind == "pledge" {
+            Task { await cacheArtwork(for: track) }
+        } else {
+            scheduleArtworkFetch(title: title, artist: artist)
+        }
         notify()
     }
 
@@ -822,6 +830,12 @@ private final class KPCRNowPlayingCenter: NSObject {
     var liveShowForDisplay: KPCRShow? {
         guard let currentShow, isCurrentShowActive(currentShow) else { return nil }
         return currentShow
+    }
+
+    /// Pledge-drive promo audio is on the stream and no scheduled show is overriding the card
+    /// (same rule as the website's now-playing card).
+    var isPledgeActive: Bool {
+        liveShowForDisplay == nil && KPCRPledgePromo.isPledge(artist: currentArtist)
     }
 
     var displayTitle: String? {
@@ -937,10 +951,10 @@ private final class KPCRNowPlayingCenter: NSObject {
         notify()
     }
 
-    private func addRecent(title: String, artist: String) {
+    private func addRecent(title: String, artist: String, imageUrl: String? = nil) {
         let key = cacheKey(title: title, artist: artist)
         recentTracks.removeAll { cacheKey(title: $0.title, artist: $0.artist) == key }
-        recentTracks.insert(KPCRTrack(title: title, artist: artist, imageUrl: nil, airedAt: DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .short)), at: 0)
+        recentTracks.insert(KPCRTrack(title: title, artist: artist, imageUrl: imageUrl, airedAt: DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .short)), at: 0)
         recentTracks = Array(recentTracks.prefix(10))
     }
 
@@ -2654,11 +2668,22 @@ private final class KPCRHeroCardView: KPCRShadowCard {
     private let fallbackIcon = UIImageView(image: UIImage(named: "trackArtworkFallback")?.withRenderingMode(.alwaysTemplate))
     private let trackTitle = label("Currently Playing", 28, .black)
     private let artistName = label("Waiting for track info", 18, .medium)
+    private let donateButton = UIButton(type: .system)
     private var notificationToken: NSObjectProtocol?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = KPCRStyle.purple
+
+        // Shown only while the pledge-drive promo audio is playing.
+        donateButton.setTitle("Donate now", for: .normal)
+        donateButton.setTitleColor(.white, for: .normal)
+        donateButton.titleLabel?.font = KPCRStyle.rounded(18, weight: .bold)
+        donateButton.backgroundColor = UIColor(red: 0.969, green: 0.259, blue: 0.259, alpha: 1) // #F74242
+        donateButton.layer.cornerRadius = 24
+        donateButton.isHidden = true
+        donateButton.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        donateButton.addAction(UIAction { _ in UIApplication.shared.open(KPCRPledgePromo.donateURL) }, for: .touchUpInside)
 
         artwork.contentMode = .scaleAspectFill
         artwork.backgroundColor = KPCRStyle.cyan
@@ -2687,7 +2712,7 @@ private final class KPCRHeroCardView: KPCRShadowCard {
         trackTitle.numberOfLines = 2
         artistName.numberOfLines = 2
 
-        let stack = UIStackView(arrangedSubviews: [dividerTop, section, dividerBottom, artwork, trackTitle, artistName])
+        let stack = UIStackView(arrangedSubviews: [dividerTop, section, dividerBottom, artwork, trackTitle, artistName, donateButton])
         stack.axis = .vertical
         stack.spacing = 10
         stack.alignment = .fill
@@ -2713,6 +2738,11 @@ private final class KPCRHeroCardView: KPCRShadowCard {
         let image = KPCRNowPlayingCenter.shared.displayArtwork
         artwork.image = image
         fallbackIcon.isHidden = image != nil
+        let pledge = KPCRNowPlayingCenter.shared.isPledgeActive
+        donateButton.isHidden = !pledge
+        // The promo art has title text near its edges: show it whole on black.
+        artwork.contentMode = pledge ? .scaleAspectFit : .scaleAspectFill
+        artwork.backgroundColor = pledge ? .black : KPCRStyle.cyan
     }
 }
 

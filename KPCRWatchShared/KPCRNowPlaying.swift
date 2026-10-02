@@ -18,6 +18,9 @@ struct KPCRNowPlaying: Codable, Equatable {
 
     /// The song line, or nil when the station only reports the show itself.
     var detail: String? {
+        if let artist = clean(artist), artist.range(of: "return of the pledge drive 2026", options: .caseInsensitive) != nil {
+            return "Spread the signal! Donate today"
+        }
         guard let track = clean(track), track != clean(show) else { return nil }
         if let artist = clean(artist) { return "\(track) · \(artist)" }
         return track

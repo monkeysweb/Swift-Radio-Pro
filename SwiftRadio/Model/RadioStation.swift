@@ -82,3 +82,16 @@ extension RadioStation {
         return URL(string: musicSearchURLString)
     }
 }
+
+/// "The Return of the Pledge Drive" promo audio: the stream tags these spots with
+/// artist "Return of The Pledge Drive 2026". Mirrors the website's now-playing card.
+enum KPCRPledgePromo {
+    static let title = "Spread the signal! Donate today"
+    static let artURL = URL(string: "https://kpcr.org/img/pledge-drive/album-art.jpg")!
+    static let donateURL = URL(string: "https://kpcr.org/donate")!
+
+    static func isPledge(artist: String?) -> Bool {
+        guard let artist else { return false }
+        return artist.range(of: "return of the pledge drive 2026", options: .caseInsensitive) != nil
+    }
+}
